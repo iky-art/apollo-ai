@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin Panel — Apollo AI</title>
+<meta name="robots" content="noindex,nofollow"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060609;--surface:#0D0D12;--card:#13131A;--card2:#1A1A24;--card3:#20202C;
+  --border:#1E1E2E;--border2:#2A2A3E;--border3:#363650;
+  --violet:#7C3AED;--violet2:#6D28D9;--vglow:rgba(124,58,237,.2);
+  --cyan:#06B6D4;--cglow:rgba(6,182,212,.15);
+  --orange:#F59E0B;--oglow:rgba(245,158,11,.15);
+  --red:#EF4444;--rglow:rgba(239,68,68,.15);
+  --green:#10B981;--gglow:rgba(16,185,129,.15);
+  --pink:#EC4899;--pglow:rgba(236,72,153,.15);
+  --snow:#F1F5F9;--muted:#64748B;--muted2:#475569;--muted3:#334155;
+  --rs:8px;--rs2:12px;
+}
+html,body{height:100%;background:var(--bg);color:var(--snow);font-family:'Inter',sans-serif;overflow:hidden}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border3);border-radius:4px}
+
+/* ───── LAYOUT ───── */
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ───── SIDEBAR ───── */
+.aside{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.aside-top{padding:18px 14px 12px;border-bottom:1px solid var(--border)}
+.a-logo{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+.a-gem{width:28px;height:28px;background:linear-gradient(135deg,var(--violet),var(--cyan));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.a-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700}
+.a-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#FCA5A5;letter-spacing:.5px;margin-left:auto;flex-shrink:0}
+.a-admin-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.2);border-radius:var(--rs);cursor:pointer}
+.a-av{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.a-name{font-size:12px;font-weight:600;color:var(--snow)}
+.a-role{font-size:10px;color:var(--violet)}
+
+.a-nav{flex:1;overflow-y:auto;padding:10px 8px}
+.a-section{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);padding:10px 8px 4px}
+.a-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--rs);cursor:pointer;font-size:12.5px;color:var(--muted);transition:all .15s;border:1px solid transparent;margin-bottom:1px;position:relative}
+.a-item:hover{background:var(--card);color:var(--snow)}
+.a-item.active{background:rgba(124,58,237,.12);color:var(--snow);border-color:rgba(124,58,237,.25)}
+.a-item .ico{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.a-badge2{margin-left:auto;font-size:9px;font-weight:700;padding:1px 5px;border-radius:6px;min-width:18px;text-align:center}
+.a-badge2.red{background:rgba(239,68,68,.2);color:#FCA5A5;border:1px solid rgba(239,68,68,.3)}
+.a-badge2.orange{background:rgba(245,158,11,.2);color:#FCD34D;border:1px solid rgba(245,158,11,.3)}
+.a-badge2.green{background:rgba(16,185,129,.2);color:#6EE7B7;border:1px solid rgba(16,185,129,.3)}
+
+.a-footer{padding:10px 8px;border-top:1px solid var(--border)}
+.realtime-pill{display:flex;align-items:center;gap:6px;padding:6px 10px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:var(--rs);font-size:11px;color:var(--green)}
+.rt-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ───── MAIN ───── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+
+/* ───── TOPBAR ───── */
+.topbar{height:52px;padding:0 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(6,6,9,.8);backdrop-filter:blur(14px);flex-shrink:0}
+.tb-left{display:flex;align-items:center;gap:12px}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700}
+.page-sub{font-size:11px;color:var(--muted)}
+.tb-right{display:flex;align-items:center;gap:8px}
+.tb-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--card);border:1px solid var(--border2);border-radius:var(--rs);font-size:12px;color:var(--muted);cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif}
+.tb-btn:hover{border-color:var(--border3);color:var(--snow)}
+.tb-btn.danger{color:#FCA5A5;border-color:rgba(239,68,68,.3)}
+.tb-btn.danger:hover{background:rgba(239,68,68,.08)}
+.last-refresh{font-size:10.5px;color:var(--muted2)}
+
+/* ───── CONTENT ───── */
+.content{flex:1;overflow-y:auto;padding:20px}
+.page{display:none}
+.page.active{display:block}
+
+/* ───── STAT CARDS ───── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:20px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rs2);padding:16px;position:relative;overflow:hidden;transition:border-color .2s}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.stat-card.v::before{background:linear-gradient(90deg,var(--violet),transparent)}
+.stat-card.c::before{background:linear-gradient(90deg,var(--cyan),transparent)}
+.stat-card.g::before{background:linear-gradient(90deg,var(--green),transparent)}
+.stat-card.o::before{background:linear-gradient(90deg,var(--orange),transparent)}
+.stat-card.r::before{background:linear-gradient(90deg,var(--red),transparent)}
+.stat-card.p::before{background:linear-gradient(90deg,var(--pink),transparent)}
+.stat-ico{font-size:20px;margin-bottom:10px}
+.stat-val{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;line-height:1;margin-bottom:4px}
+.stat-label{font-size:11px;color:var(--muted)}
+.stat-change{font-size:10.5px;margin-top:6px}
+.stat-change.up{color:var(--green)}
+.stat-change.down{color:var(--red)}
+
+/* ───── CARDS ───── */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.row3{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--rs2);overflow:hidden}
+.panel-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
+.panel-body{padding:14px 16px}
+.panel-action{font-size:11px;color:var(--violet);cursor:pointer;padding:4px 8px;border-radius:6px;border:1px solid rgba(124,58,237,.25);transition:all .15s}
+.panel-action:hover{background:rgba(124,58,237,.1)}
+
+/* ───── TABLE ───── */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{padding:9px 12px;text-align:left;font-size:10.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.015)}
+.td-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.td-name{font-weight:500;color:var(--snow)}
+.td-sub{font-size:10.5px;color:var(--muted)}
+.plan-badge{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.plan-badge.free{background:rgba(100,116,139,.15);color:#94A3B8;border:1px solid rgba(100,116,139,.25)}
+.plan-badge.pro{background:rgba(124,58,237,.15);color:#C4B5FD;border:1px solid rgba(124,58,237,.3)}
+.plan-badge.admin{background:rgba(245,158,11,.15);color:#FCD34D;border:1px solid rgba(245,158,11,.3)}
+.status-dot{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:5px}
+.status-dot.active{background:var(--green)}
+.status-dot.banned{background:var(--red)}
+.status-dot.inactive{background:var(--muted)}
+.tbl-action{display:flex;gap:5px}
+.tbl-btn{padding:4px 9px;border-radius:6px;font-size:11px;cursor:pointer;border:1px solid var(--border2);background:none;color:var(--muted);font-family:'Inter',sans-serif;transition:all .15s;white-space:nowrap}
+.tbl-btn:hover{color:var(--snow);border-color:var(--border3)}
+.tbl-btn.ban{color:#FCA5A5;border-color:rgba(239,68,68,.3)}
+.tbl-btn.ban:hover{background:rgba(239,68,68,.1)}
+.tbl-btn.unban{color:#6EE7B7;border-color:rgba(16,185,129,.3)}
+.tbl-btn.unban:hover{background:rgba(16,185,129,.1)}
+.tbl-btn.promote{color:#C4B5FD;border-color:rgba(124,58,237,.3)}
+.tbl-btn.promote:hover{background:rgba(124,58,237,.1)}
+
+/* ───── SEARCH & FILTER ───── */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--card);border:1px solid var(--border2);border-radius:var(--rs);flex:1;min-width:180px}
+.search-box input{background:none;border:none;outline:none;color:var(--snow);font-size:12.5px;font-family:'Inter',sans-serif;width:100%}
+.search-box input::placeholder{color:var(--muted2)}
+.filter-sel{padding:8px 12px;background:var(--card);border:1px solid var(--border2);border-radius:var(--rs);color:var(--muted);font-size:12px;font-family:'Inter',sans-serif;outline:none;cursor:pointer}
+.filter-sel option{background:var(--card2)}
+.count-label{font-size:11px;color:var(--muted);white-space:nowrap}
+
+/* ───── CHART BARS ───── */
+.mini-chart{display:flex;align-items:flex-end;gap:4px;height:60px}
+.bar{flex:1;border-radius:3px 3px 0 0;min-height:4px;transition:height .3s}
+.bar.v{background:linear-gradient(to top,var(--violet),rgba(124,58,237,.4))}
+.bar.c{background:linear-gradient(to top,var(--cyan),rgba(6,182,212,.4))}
+.bar.g{background:linear-gradient(to top,var(--green),rgba(16,185,129,.4))}
+.chart-labels{display:flex;gap:4px;margin-top:5px}
+.chart-labels span{flex:1;text-align:center;font-size:9px;color:var(--muted2)}
+
+/* ───── ACTIVITY FEED ───── */
+.feed-item{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.feed-item:last-child{border-bottom:none}
+.feed-ico{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.feed-ico.user{background:rgba(124,58,237,.15)}
+.feed-ico.warn{background:rgba(239,68,68,.15)}
+.feed-ico.chat{background:rgba(6,182,212,.15)}
+.feed-ico.ok{background:rgba(16,185,129,.15)}
+.feed-ico.jb{background:rgba(245,158,11,.15)}
+.feed-text{font-size:12px;color:var(--snow);line-height:1.5}
+.feed-time{font-size:10.5px;color:var(--muted2);margin-top:2px}
+
+/* ───── JAILBREAK ───── */
+.jb-card{background:var(--card);border:1px solid rgba(239,68,68,.2);border-radius:var(--rs2);padding:14px 16px;margin-bottom:10px;position:relative}
+.jb-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.jb-card.high::before{background:var(--red)}
+.jb-card.med::before{background:var(--orange)}
+.jb-card.low::before{background:var(--cyan)}
+.jb-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.jb-risk{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.jb-risk.high{background:rgba(239,68,68,.15);color:#FCA5A5;border:1px solid rgba(239,68,68,.3)}
+.jb-risk.med{background:rgba(245,158,11,.15);color:#FCD34D;border:1px solid rgba(245,158,11,.3)}
+.jb-risk.low{background:rgba(6,182,212,.15);color:#67E8F9;border:1px solid rgba(6,182,212,.3)}
+.jb-user{font-size:12px;color:var(--muted)}
+.jb-time{font-size:10.5px;color:var(--muted2);margin-left:auto}
+.jb-msg{font-size:12.5px;color:var(--snow);background:var(--card2);padding:8px 10px;border-radius:var(--rs);font-family:'JetBrains Mono',monospace;margin-bottom:8px;word-break:break-all;line-height:1.5;border-left:2px solid rgba(239,68,68,.4)}
+.jb-pattern{font-size:10.5px;color:var(--muted);margin-bottom:8px}
+.jb-pattern span{color:var(--red);font-weight:600}
+.jb-actions{display:flex;gap:6px}
+
+/* ───── ANNOUNCEMENT ───── */
+.ann-card{background:var(--card2);border:1px solid var(--border2);border-radius:var(--rs);padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px}
+.ann-ico{font-size:16px;flex-shrink:0;margin-top:1px}
+.ann-body{flex:1}
+.ann-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.ann-content{font-size:12px;color:var(--muted);line-height:1.5}
+.ann-meta{font-size:10.5px;color:var(--muted2);margin-top:5px}
+.ann-actions{display:flex;gap:5px;margin-left:auto;flex-shrink:0}
+
+/* ───── FORM ELEMENTS ───── */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-field{margin-bottom:12px}
+.form-field label{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-bottom:6px;letter-spacing:.3px}
+.form-field input,.form-field textarea,.form-field select{width:100%;padding:9px 12px;background:var(--card2);border:1px solid var(--border2);border-radius:var(--rs);color:var(--snow);font-family:'Inter',sans-serif;font-size:13px;outline:none;transition:border-color .2s;resize:none}
+.form-field input:focus,.form-field textarea:focus,.form-field select:focus{border-color:var(--violet)}
+.form-field select option{background:var(--card2)}
+.form-field textarea{min-height:80px;line-height:1.5}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.toggle-label{font-size:13px}
+.toggle-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.toggle{position:relative;width:40px;height:22px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:var(--card2);border:1px solid var(--border2);border-radius:20px;cursor:pointer;transition:.25s}
+.slider::before{content:'';position:absolute;height:16px;width:16px;left:2px;top:2px;background:var(--muted);border-radius:50%;transition:.25s}
+.toggle input:checked+.slider{background:rgba(124,58,237,.25);border-color:var(--violet)}
+.toggle input:checked+.slider::before{transform:translateX(18px);background:var(--violet)}
+
+/* ───── BUTTONS ───── */
+.btn-primary{padding:9px 18px;background:linear-gradient(135deg,var(--violet),var(--violet2));border:none;border-radius:var(--rs);color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 6px 20px var(--vglow)}
+.btn-secondary{padding:9px 18px;background:none;border:1px solid var(--border2);border-radius:var(--rs);color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{border-color:var(--border3);color:var(--snow)}
+.btn-danger{padding:9px 18px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:var(--rs);color:#FCA5A5;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.btn-danger:hover{background:rgba(239,68,68,.2)}
+
+/* ───── CONFIG ───── */
+.config-section{background:var(--card);border:1px solid var(--border);border-radius:var(--rs2);margin-bottom:14px;overflow:hidden}
+.config-head{padding:13px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.02)}
+.config-body{padding:14px 16px}
+
+/* ───── MAINTENANCE BANNER ───── */
+.maintenance-banner{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--rs);padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px;display:none}
+.maintenance-banner.show{display:flex}
+
+/* ───── MODAL ───── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.modal-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:14px;font-weight:700}
+.modal-close{width:28px;height:28px;border-radius:6px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.modal-close:hover{background:var(--card2);color:var(--snow)}
+.modal-body{padding:18px 20px}
+.modal-foot{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/* ───── TOAST ───── */
+#toast{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px}
+.toast-item{padding:10px 16px;border-radius:var(--rs);font-size:12.5px;display:flex;align-items:center;gap:8px;animation:toastIn .25s ease;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.toast-item.ok{background:#065F46;border:1px solid rgba(16,185,129,.4);color:#6EE7B7}
+.toast-item.err{background:#7F1D1D;border:1px solid rgba(239,68,68,.4);color:#FCA5A5}
+.toast-item.warn{background:#78350F;border:1px solid rgba(245,158,11,.4);color:#FCD34D}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+
+/* ───── EMPTY STATE ───── */
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-ico{font-size:36px;margin-bottom:10px}
+.empty-text{font-size:13px}
+
+/* ───── RESPONSIVE ───── */
+@media(max-width:768px){
+  .aside{display:none}
+  .row2,.row3{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="aside">
+  <div class="aside-top">
+    <div class="a-logo">
+      <div class="a-gem">✦</div>
+      <span class="a-title">Apollo AI</span>
+      <span class="a-badge">ADMIN</span>
+    </div>
+    <div class="a-admin-row" onclick="goPage('profile')">
+      <div class="a-av" id="av-text">A</div>
+      <div>
+        <div class="a-name" id="av-name">Admin</div>
+        <div class="a-role">Super Admin</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="a-nav">
+    <div class="a-section">Overview</div>
+    <div class="a-item active" onclick="goPage('dashboard')" data-page="dashboard">
+      <span class="ico">📊</span> Dashboard
+    </div>
+
+    <div class="a-section">Manajemen</div>
+    <div class="a-item" onclick="goPage('users')" data-page="users">
+      <span class="ico">👥</span> Users
+      <span class="a-badge2 green" id="nb-users">0</span>
+    </div>
+    <div class="a-item" onclick="goPage('chat')" data-page="chat">
+      <span class="ico">💬</span> Chat & Moderasi
+    </div>
+    <div class="a-item" onclick="goPage('jailbreak')" data-page="jailbreak">
+      <span class="ico">🚨</span> Jailbreak Detector
+      <span class="a-badge2 red" id="nb-jb">0</span>
+    </div>
+
+    <div class="a-section">Konten</div>
+    <div class="a-item" onclick="goPage('announce')" data-page="announce">
+      <span class="ico">📢</span> Pengumuman
+    </div>
+    <div class="a-item" onclick="goPage('feedback')" data-page="feedback">
+      <span class="ico">💭</span> Feedback
+      <span class="a-badge2 orange" id="nb-fb">0</span>
+    </div>
+    <div class="a-item" onclick="goPage('broadcast')" data-page="broadcast">
+      <span class="ico">📡</span> Broadcast
+    </div>
+
+    <div class="a-section">Sistem</div>
+    <div class="a-item" onclick="goPage('config')" data-page="config">
+      <span class="ico">⚙️</span> Konfigurasi App
+    </div>
+    <div class="a-item" onclick="goPage('logs')" data-page="logs">
+      <span class="ico">📋</span> Activity Logs
+    </div>
+  </nav>
+
+  <div class="a-footer">
+    <div class="realtime-pill">
+      <div class="rt-dot"></div>
+      <span>Realtime aktif</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--muted2)" id="last-rt">—</span>
+    </div>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<div class="main">
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="tb-left">
+      <div>
+        <div class="page-title" id="tb-title">Dashboard</div>
+        <div class="page-sub" id="tb-sub">Overview sistem Apollo AI</div>
+      </div>
+    </div>
+    <div class="tb-right">
+      <span class="last-refresh" id="refresh-label">—</span>
+      <button class="tb-btn" onclick="refreshAll()">🔄 Refresh</button>
+      <button class="tb-btn danger" onclick="confirmLogout()">← Keluar</button>
+    </div>
+  </div>
+
+  <!-- ═══════════ CONTENT ═══════════ -->
+  <div class="content" id="content">
+
+    <!-- ══ PAGE: DASHBOARD ══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="stats-grid" id="stat-grid">
+        <div class="stat-card v"><div class="stat-ico">👥</div><div class="stat-val" id="s-users">—</div><div class="stat-label">Total Users</div><div class="stat-change up" id="s-users-c"></div></div>
+        <div class="stat-card c"><div class="stat-ico">💬</div><div class="stat-val" id="s-chats">—</div><div class="stat-label">Total Chat</div><div class="stat-change up" id="s-chats-c"></div></div>
+        <div class="stat-card g"><div class="stat-ico">✅</div><div class="stat-val" id="s-active">—</div><div class="stat-label">User Aktif Hari Ini</div></div>
+        <div class="stat-card o"><div class="stat-ico">💎</div><div class="stat-val" id="s-pro">—</div><div class="stat-label">User Pro</div></div>
+        <div class="stat-card r"><div class="stat-ico">🚨</div><div class="stat-val" id="s-jb">—</div><div class="stat-label">Jailbreak Terdeteksi</div></div>
+        <div class="stat-card p"><div class="stat-ico">💭</div><div class="stat-val" id="s-fb">—</div><div class="stat-label">Feedback Masuk</div></div>
+      </div>
+
+      <div class="row3">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">📈 Chat 7 Hari Terakhir</span>
+          </div>
+          <div class="panel-body">
+            <div class="mini-chart" id="chart-chats"></div>
+            <div class="chart-labels" id="chart-labels"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title">🎯 Distribusi Plan</span></div>
+          <div class="panel-body" id="plan-dist" style="display:flex;flex-direction:column;gap:8px"></div>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">⚡ Aktivitas Terbaru</span>
+            <span class="panel-action" onclick="goPage('logs')">Lihat semua</span>
+          </div>
+          <div class="panel-body" id="feed-recent" style="padding:0 16px"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head">
+            <span class="panel-title">🚨 Jailbreak Terbaru</span>
+            <span class="panel-action" onclick="goPage('jailbreak')">Lihat semua</span>
+          </div>
+          <div class="panel-body" id="jb-recent" style="padding:0 16px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: USERS ══ -->
+    <div class="page" id="page-users">
+      <div class="toolbar">
+        <div class="search-box">🔍 <input id="user-search" placeholder="Cari nama / email..." oninput="filterUsers()"/></div>
+        <select class="filter-sel" id="user-filter-plan" onchange="filterUsers()">
+          <option value="">Semua Plan</option>
+          <option value="free">Free</option>
+          <option value="pro">Pro</option>
+          <option value="admin">Admin</option>
+        </select>
+        <select class="filter-sel" id="user-filter-status" onchange="filterUsers()">
+          <option value="">Semua Status</option>
+          <option value="active">Aktif</option>
+          <option value="banned">Banned</option>
+        </select>
+        <span class="count-label" id="user-count">0 user</span>
+        <button class="btn-primary" onclick="exportUsers()">⬇ Export CSV</button>
+      </div>
+      <div class="panel">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>User</th><th>Plan</th><th>Status</th><th>Chat</th><th>Bergabung</th><th>Aksi</th>
+            </tr></thead>
+            <tbody id="users-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: CHAT & MODERASI ══ -->
+    <div class="page" id="page-chat">
+      <div class="toolbar">
+        <div class="search-box">🔍 <input id="chat-search" placeholder="Cari pesan..." oninput="filterChats()"/></div>
+        <select class="filter-sel" id="chat-filter" onchange="filterChats()">
+          <option value="">Semua</option>
+          <option value="global">Global Chat</option>
+          <option value="private">Chat Pribadi</option>
+        </select>
+        <button class="btn-danger" onclick="confirmClearGlobal()">🗑 Hapus Global Chat</button>
+      </div>
+      <div class="panel">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>User</th><th>Pesan</th><th>Tipe</th><th>Waktu</th><th>Aksi</th></tr></thead>
+            <tbody id="chat-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: JAILBREAK ══ -->
+    <div class="page" id="page-jailbreak">
+      <div style="background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--rs);padding:12px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <span style="font-size:20px">🛡️</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#FCA5A5">Sistem Deteksi Jailbreak Aktif</div>
+          <div style="font-size:11.5px;color:var(--muted)">Memantau percakapan secara realtime. Pattern-based + heuristic detection.</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-size:20px;font-weight:700;color:#FCA5A5;font-family:'Space Grotesk',sans-serif" id="jb-total-count">0</div>
+          <div style="font-size:10px;color:var(--muted)">total deteksi</div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <select class="filter-sel" id="jb-filter" onchange="filterJailbreak()">
+          <option value="">Semua Risiko</option>
+          <option value="high">🔴 Tinggi</option>
+          <option value="med">🟡 Sedang</option>
+          <option value="low">🔵 Rendah</option>
+        </select>
+        <button class="btn-danger" onclick="clearJailbreakLog()">🗑 Hapus Semua Log</button>
+      </div>
+      <div id="jb-list"></div>
+    </div>
+
+    <!-- ══ PAGE: ANNOUNCE ══ -->
+    <div class="page" id="page-announce">
+      <div class="row2">
+        <div>
+          <div class="panel" style="margin-bottom:14px">
+            <div class="panel-head"><span class="panel-title">➕ Buat Pengumuman</span></div>
+            <div class="panel-body">
+              <div class="form-field"><label>JUDUL</label><input id="ann-title" placeholder="Judul pengumuman..."/></div>
+              <div class="form-field"><label>ISI PESAN</label><textarea id="ann-content" placeholder="Tulis isi pengumuman..."></textarea></div>
+              <div class="form-row">
+                <div class="form-field" style="margin:0"><label>TIPE BADGE</label>
+                  <select id="ann-badge">
+                    <option value="info">ℹ️ Info</option>
+                    <option value="warn">⚠️ Warning</option>
+                    <option value="success">✅ Success</option>
+                    <option value="danger">🚨 Danger</option>
+                  </select>
+                </div>
+                <div style="display:flex;align-items:flex-end">
+                  <button class="btn-primary" style="width:100%" onclick="createAnnouncement()">📢 Publish</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title">📋 Pengumuman Aktif</span></div>
+          <div class="panel-body" id="ann-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: FEEDBACK ══ -->
+    <div class="page" id="page-feedback">
+      <div class="toolbar">
+        <select class="filter-sel" id="fb-filter" onchange="filterFeedback()">
+          <option value="">Semua Tipe</option>
+          <option value="bug">🐛 Bug Report</option>
+          <option value="fitur">✨ Request Fitur</option>
+          <option value="pujian">💙 Pujian</option>
+          <option value="lainnya">💬 Lainnya</option>
+        </select>
+        <span class="count-label" id="fb-count">0 feedback</span>
+      </div>
+      <div class="panel">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>User</th><th>Tipe</th><th>Pesan</th><th>Waktu</th><th>Aksi</th></tr></thead>
+            <tbody id="fb-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: BROADCAST ══ -->
+    <div class="page" id="page-broadcast">
+      <div class="row2">
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title">📡 Kirim Broadcast</span></div>
+          <div class="panel-body">
+            <div class="form-field"><label>JUDUL NOTIFIKASI</label><input id="bc-title" placeholder="Judul broadcast..."/></div>
+            <div class="form-field"><label>PESAN</label><textarea id="bc-msg" placeholder="Isi pesan broadcast..."></textarea></div>
+            <div class="form-field"><label>TARGET PENERIMA</label>
+              <select id="bc-target">
+                <option value="all">👥 Semua User</option>
+                <option value="free">🆓 User Free Saja</option>
+                <option value="pro">💎 User Pro Saja</option>
+              </select>
+            </div>
+            <div style="background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:var(--rs);padding:10px 12px;font-size:12px;color:#FCD34D;margin-bottom:14px">
+              ⚠️ Broadcast akan tersimpan di database sebagai notifikasi. Pastikan pesannya benar sebelum kirim.
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn-secondary" onclick="previewBroadcast()">👁 Preview</button>
+              <button class="btn-primary" onclick="sendBroadcast()">📡 Kirim Sekarang</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title">📜 Riwayat Broadcast</span></div>
+          <div class="panel-body" id="bc-history" style="padding:0 16px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: CONFIG ══ -->
+    <div class="page" id="page-config">
+      <div class="maintenance-banner" id="maint-banner">
+        <span style="font-size:18px">🔧</span>
+        <div>
+          <div style="font-size:13px;font-weight:600;color:#FCA5A5">Mode Maintenance Aktif</div>
+          <div style="font-size:11.5px;color:var(--muted)">Pengguna tidak bisa mengakses app saat ini.</div>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-head">🤖 Konfigurasi Model AI</div>
+        <div class="config-body">
+          <div class="form-row">
+            <div class="form-field" style="margin:0"><label>MODEL UTAMA</label>
+              <select id="cfg-model">
+                <option value="llama-3.3-70b-versatile">Llama 3.3 70B Versatile ⚡ (Default)</option>
+                <option value="llama3-70b-8192">Llama 3 70B</option>
+                <option value="llama3-8b-8192">Llama 3 8B (Cepat)</option>
+                <option value="mixtral-8x7b-32768">Mixtral 8x7B</option>
+                <option value="gemma2-9b-it">Gemma 2 9B</option>
+              </select>
+            </div>
+            <div class="form-field" style="margin:0"><label>MAX TOKENS</label>
+              <input type="number" id="cfg-tokens" value="2048" min="256" max="8192"/>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-field" style="margin:0"><label>TEMPERATURE (0.0 – 2.0)</label>
+              <input type="number" id="cfg-temp" value="0.7" min="0" max="2" step="0.1"/>
+            </div>
+            <div class="form-field" style="margin:0"><label>SYSTEM PROMPT</label>
+              <input id="cfg-sysprompt" placeholder="Kamu adalah Apollo AI..."/>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="saveModelConfig()">💾 Simpan Konfigurasi Model</button>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-head">⏱ Rate Limit</div>
+        <div class="config-body">
+          <div class="form-row">
+            <div class="form-field" style="margin:0"><label>MAKS REQUEST / MENIT (USER FREE)</label>
+              <input type="number" id="cfg-rl-free" value="10" min="1" max="100"/>
+            </div>
+            <div class="form-field" style="margin:0"><label>MAKS REQUEST / MENIT (USER PRO)</label>
+              <input type="number" id="cfg-rl-pro" value="60" min="1" max="500"/>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="saveRateLimit()">💾 Simpan Rate Limit</button>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-head">🔧 Kontrol Sistem</div>
+        <div class="config-body">
+          <div class="toggle-row">
+            <div><div class="toggle-label">Mode Maintenance</div><div class="toggle-sub">Nonaktifkan akses app untuk semua user sementara</div></div>
+            <label class="toggle"><input type="checkbox" id="cfg-maint" onchange="toggleMaintenance()"/><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Registrasi User Baru</div><div class="toggle-sub">Izinkan pendaftaran akun baru</div></div>
+            <label class="toggle"><input type="checkbox" id="cfg-reg" checked/><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Global Chat</div><div class="toggle-sub">Aktifkan fitur global chat publik</div></div>
+            <label class="toggle"><input type="checkbox" id="cfg-gc" checked/><span class="slider"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Deteksi Jailbreak Otomatis</div><div class="toggle-sub">Blokir pesan jailbreak secara otomatis</div></div>
+            <label class="toggle"><input type="checkbox" id="cfg-jb" checked/><span class="slider"></span></label>
+          </div>
+          <div style="margin-top:14px">
+            <button class="btn-primary" onclick="saveSystemConfig()">💾 Simpan Pengaturan Sistem</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="config-section">
+        <div class="config-head">🛡️ Jailbreak Patterns</div>
+        <div class="config-body">
+          <div class="form-field"><label>KATA KUNCI BERBAHAYA (pisah koma)</label>
+            <textarea id="cfg-jb-patterns" style="min-height:100px;font-family:'JetBrains Mono',monospace;font-size:12px"></textarea>
+          </div>
+          <button class="btn-primary" onclick="saveJbPatterns()">💾 Simpan Patterns</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PAGE: LOGS ══ -->
+    <div class="page" id="page-logs">
+      <div class="toolbar">
+        <select class="filter-sel" id="log-filter" onchange="filterLogs()">
+          <option value="">Semua Event</option>
+          <option value="login">Login</option>
+          <option value="register">Register</option>
+          <option value="ban">Ban/Unban</option>
+          <option value="jailbreak">Jailbreak</option>
+          <option value="chat">Chat</option>
+          <option value="admin">Admin Action</option>
+        </select>
+        <button class="btn-secondary" onclick="exportLogs()">⬇ Export Logs</button>
+      </div>
+      <div class="panel">
+        <div class="panel-body" id="logs-feed" style="padding:0 16px;max-height:600px;overflow-y:auto"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<!-- Modal User Detail -->
+<div class="modal-bg" id="modal-user">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title">👤 Detail User</span>
+      <button class="modal-close" onclick="closeModal('modal-user')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-user-body"></div>
+    <div class="modal-foot">
+      <button class="btn-secondary" onclick="closeModal('modal-user')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirm -->
+<div class="modal-bg" id="modal-confirm">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="confirm-title">Konfirmasi</span>
+      <button class="modal-close" onclick="closeModal('modal-confirm')">✕</button>
+    </div>
+    <div class="modal-body" id="confirm-body"></div>
+    <div class="modal-foot">
+      <button class="btn-secondary" onclick="closeModal('modal-confirm')">Batal</button>
+      <button class="btn-danger" id="confirm-ok">Ya, Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════
+// CONFIG
+// ═══════════════════════════════
+const SB_URL = 'https://shvtvwpycygshcyiyxsv.supabase.co';
+const SB_ANON = 'sb_publishable_XuLP8WNphgA7KJ8OmRv9kw_n2y2HWuQ';
+const ADMIN_EMAILS = ['gtau22609@gmail.com'];
+
+// Jailbreak patterns
+let JB_PATTERNS = [
+  'ignore previous','ignore all instructions','forget your instructions','you are now','act as','pretend you are',
+  'jailbreak','dan mode','developer mode','do anything now','bypass','override','disregard','system prompt',
+  'you have no restrictions','no rules','unlimited','unlock','evil mode','opposite mode','sudo','root access',
+  'hypothetically','for educational purposes','in a story','roleplay as','simulate','without filters'
+];
+
+// ═══════════════════════════════
+// STATE
+// ═══════════════════════════════
+let allUsers = [];
+let allChats = [];
+let allJailbreaks = [];
+let allFeedback = [];
+let allAnnounce = [];
+let allLogs = [];
+let currentPage = 'dashboard';
+let refreshInterval = null;
+let adminSession = null;
+
+// ═══════════════════════════════
+// AUTH CHECK
+// ═══════════════════════════════
+function checkAuth(){
+  const raw = localStorage.getItem('apollo_admin');
+  if(!raw){ window.location.href='/login/admin'; return false; }
+  try{
+    adminSession = JSON.parse(raw);
+    if(Date.now() - adminSession.loginAt > 8*60*60*1000){
+      localStorage.removeItem('apollo_admin');
+      window.location.href='/login/admin';
+      return false;
+    }
+    if(!ADMIN_EMAILS.includes(adminSession.email)){
+      localStorage.removeItem('apollo_admin');
+      window.location.href='/login/admin';
+      return false;
+    }
+    document.getElementById('av-text').textContent = (adminSession.name||'A')[0].toUpperCase();
+    document.getElementById('av-name').textContent = adminSession.name||'Admin';
+    return true;
+  } catch(e){
+    localStorage.removeItem('apollo_admin');
+    window.location.href='/login/admin';
+    return false;
+  }
+}
+
+// ═══════════════════════════════
+// SUPABASE HELPER
+// ═══════════════════════════════
+async function sbFetch(path, opts={}){
+  const res = await fetch(SB_URL + path, {
+    ...opts,
+    headers:{
+      'apikey': SB_ANON,
+      'Authorization': `Bearer ${adminSession?.token || SB_ANON}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...(opts.headers||{})
+    }
+  });
+  if(!res.ok){ const e=await res.json().catch(()=>({})); throw new Error(e.message||'Error '+res.status); }
+  return res.status===204?null:res.json();
+}
+
+// ═══════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════
+const PAGE_META={
+  dashboard:['Dashboard','Overview sistem Apollo AI'],
+  users:['Manajemen User','Kelola akun pengguna'],
+  chat:['Chat & Moderasi','Monitor dan moderasi pesan'],
+  jailbreak:['Jailbreak Detector','Deteksi percobaan bypass AI'],
+  announce:['Pengumuman','Buat & kelola pengumuman'],
+  feedback:['Feedback','Lihat masukan pengguna'],
+  broadcast:['Broadcast','Kirim notifikasi ke semua user'],
+  config:['Konfigurasi App','Pengaturan sistem & AI'],
+  logs:['Activity Logs','Log seluruh aktivitas sistem'],
+};
+function goPage(p){
+  currentPage = p;
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p)?.classList.add('active');
+  document.querySelectorAll('.a-item').forEach(el=>{
+    el.classList.toggle('active', el.dataset.page===p);
+  });
+  const meta = PAGE_META[p]||[p,''];
+  document.getElementById('tb-title').textContent = meta[0];
+  document.getElementById('tb-sub').textContent = meta[1];
+  loadPage(p);
+}
+
+function loadPage(p){
+  if(p==='dashboard') loadDashboard();
+  else if(p==='users') loadUsers();
+  else if(p==='chat') loadChats();
+  else if(p==='jailbreak') renderJailbreak();
+  else if(p==='announce') loadAnnounce();
+  else if(p==='feedback') loadFeedback();
+  else if(p==='broadcast') loadBroadcastHistory();
+  else if(p==='logs') renderLogs();
+  else if(p==='config') loadConfig();
+}
+
+// ═══════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════
+async function loadDashboard(){
+  try{
+    // Fetch counts from Supabase
+    const [users, chats, feedback, gc] = await Promise.all([
+      sbFetch('/rest/v1/users?select=id,plan,created_at,chat_count').catch(()=>[]),
+      sbFetch('/rest/v1/messages?select=id,created_at').catch(()=>[]),
+      sbFetch('/rest/v1/feedback?select=id').catch(()=>[]),
+      sbFetch('/rest/v1/global_chat?select=id').catch(()=>[]),
+    ]);
+
+    allUsers = users||[];
+    const today = new Date().toDateString();
+    const activeToday = allUsers.filter(u=>u.created_at&&new Date(u.created_at).toDateString()===today).length;
+    const proUsers = allUsers.filter(u=>u.plan==='pro').length;
+
+    document.getElementById('s-users').textContent = allUsers.length;
+    document.getElementById('s-chats').textContent = (chats||[]).length + (gc||[]).length;
+    document.getElementById('s-active').textContent = activeToday;
+    document.getElementById('s-pro').textContent = proUsers;
+    document.getElementById('s-jb').textContent = allJailbreaks.length;
+    document.getElementById('s-fb').textContent = (feedback||[]).length;
+
+    // Badge counts
+    document.getElementById('nb-users').textContent = allUsers.length;
+    document.getElementById('nb-fb').textContent = (feedback||[]).length;
+    document.getElementById('nb-jb').textContent = allJailbreaks.length;
+
+    // Plan distribution
+    const planCounts = {free:0,pro:0,admin:0};
+    allUsers.forEach(u=>{ if(planCounts[u.plan]!==undefined) planCounts[u.plan]++; });
+    const total = allUsers.length || 1;
+    document.getElementById('plan-dist').innerHTML = Object.entries(planCounts).map(([plan,count])=>`
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+          <span style="color:var(--muted);text-transform:capitalize">${plan}</span>
+          <span style="font-weight:600">${count}</span>
+        </div>
+        <div style="height:5px;background:var(--card2);border-radius:3px;overflow:hidden">
+          <div style="height:100%;width:${Math.round(count/total*100)}%;background:${plan==='pro'?'var(--violet)':plan==='admin'?'var(--orange)':'var(--muted2)'};border-radius:3px;transition:width .5s"></div>
+        </div>
+      </div>`).join('');
+
+    // Chart 7 days
+    const days=[];const labels=[];
+    for(let i=6;i>=0;i--){
+      const d=new Date(); d.setDate(d.getDate()-i);
+      labels.push(['Min','Sen','Sel','Rab','Kam','Jum','Sab'][d.getDay()]);
+      const count=(chats||[]).filter(c=>new Date(c.created_at).toDateString()===d.toDateString()).length;
+      days.push(count);
+    }
+    const maxD=Math.max(...days,1);
+    document.getElementById('chart-chats').innerHTML=days.map(d=>`<div class="bar v" style="height:${Math.max(4,Math.round(d/maxD*60))}px" title="${d} chat"></div>`).join('');
+    document.getElementById('chart-labels').innerHTML=labels.map(l=>`<span>${l}</span>`).join('');
+
+    // Feed recent — dummy + real
+    renderFeed('feed-recent', [
+      {ico:'👤',cls:'user',text:'User baru bergabung',time:'baru saja'},
+      {ico:'💬',cls:'chat',text:'Pesan baru di Global Chat',time:'1 mnt lalu'},
+      {ico:'✅',cls:'ok',text:`${allUsers.length} total user terdaftar`,time:'update'},
+    ]);
+
+    updateRefreshLabel();
+  } catch(e){ toast('Gagal load dashboard: '+e.message,'err'); }
+}
+
+function renderFeed(id, items){
+  document.getElementById(id).innerHTML = items.length ? items.map(i=>`
+    <div class="feed-item">
+      <div class="feed-ico ${i.cls}">${i.ico}</div>
+      <div><div class="feed-text">${i.text}</div><div class="feed-time">${i.time}</div></div>
+    </div>`).join('') : '<div class="empty"><div class="empty-ico">📭</div><div class="empty-text">Tidak ada aktivitas</div></div>';
+}
+
+// ═══════════════════════════════
+// USERS
+// ═══════════════════════════════
+async function loadUsers(){
+  try{
+    const data = await sbFetch('/rest/v1/users?select=*&order=created_at.desc');
+    allUsers = data||[];
+    filterUsers();
+    updateRefreshLabel();
+  } catch(e){ toast('Gagal load users: '+e.message,'err'); }
+}
+
+function filterUsers(){
+  const q = (document.getElementById('user-search')?.value||'').toLowerCase();
+  const plan = document.getElementById('user-filter-plan')?.value||'';
+  const status = document.getElementById('user-filter-status')?.value||'';
+  let list = allUsers.filter(u=>{
+    const matchQ = !q || (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q);
+    const matchP = !plan || u.plan===plan;
+    const matchS = !status || (status==='banned'?u.is_banned:!u.is_banned);
+    return matchQ&&matchP&&matchS;
+  });
+  document.getElementById('user-count').textContent = list.length+' user';
+  document.getElementById('users-tbody').innerHTML = list.length ? list.map(u=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:9px">
+        <div class="td-av">${(u.name||u.email||'?')[0].toUpperCase()}</div>
+        <div><div class="td-name">${u.name||'—'}</div><div class="td-sub">${u.email}</div></div>
+      </div></td>
+      <td><span class="plan-badge ${u.plan||'free'}">${u.plan||'free'}</span></td>
+      <td><span class="status-dot ${u.is_banned?'banned':'active'}"></span>${u.is_banned?'Banned':'Aktif'}</td>
+      <td style="font-family:'JetBrains Mono',monospace">${u.chat_count||0}</td>
+      <td style="color:var(--muted);font-size:11.5px">${u.created_at?new Date(u.created_at).toLocaleDateString('id'):'-'}</td>
+      <td><div class="tbl-action">
+        <button class="tbl-btn" onclick="showUserDetail('${u.id}')">Detail</button>
+        <button class="tbl-btn ${u.is_banned?'unban':'ban'}" onclick="${u.is_banned?'unbanUser':'banUser'}('${u.id}','${u.email}')">${u.is_banned?'Unban':'Ban'}</button>
+        <button class="tbl-btn promote" onclick="changePlan('${u.id}','${u.plan}')">Plan</button>
+      </div></td>
+    </tr>`).join('') : '<tr><td colspan="6"><div class="empty"><div class="empty-ico">👤</div><div class="empty-text">Tidak ada user</div></div></td></tr>';
+}
+
+function showUserDetail(id){
+  const u = allUsers.find(x=>x.id===id);
+  if(!u) return;
+  document.getElementById('modal-user-body').innerHTML=`
+    <div style="text-align:center;margin-bottom:20px">
+      <div class="td-av" style="width:52px;height:52px;font-size:20px;margin:0 auto 10px">${(u.name||u.email||'?')[0].toUpperCase()}</div>
+      <div style="font-size:16px;font-weight:700">${u.name||'—'}</div>
+      <div style="font-size:13px;color:var(--muted)">${u.email}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:12.5px">
+      ${[['ID',u.id?.slice(0,8)+'...'],['Plan',u.plan||'free'],['Status',u.is_banned?'Banned':'Aktif'],['Total Chat',u.chat_count||0],['Bergabung',u.created_at?new Date(u.created_at).toLocaleString('id'):'-'],['Update',u.updated_at?new Date(u.updated_at).toLocaleString('id'):'-']].map(([k,v])=>`
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--rs);padding:10px">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:3px">${k}</div>
+        <div style="font-weight:600">${v}</div>
+      </div>`).join('')}
+    </div>`;
+  document.getElementById('modal-user').classList.add('show');
+}
+
+async function banUser(id, email){
+  showConfirm('Ban User', `Ban user <strong>${email}</strong>? User tidak bisa login.`, async()=>{
+    try{
+      await sbFetch(`/rest/v1/users?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({is_banned:true})});
+      addLog('ban', `Ban user: ${email}`);
+      toast('User berhasil di-ban','ok');
+      loadUsers();
+    } catch(e){ toast('Gagal ban: '+e.message,'err'); }
+  });
+}
+async function unbanUser(id, email){
+  try{
+    await sbFetch(`/rest/v1/users?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({is_banned:false})});
+    addLog('ban', `Unban user: ${email}`);
+    toast('User berhasil di-unban','ok');
+    loadUsers();
+  } catch(e){ toast('Gagal unban: '+e.message,'err'); }
+}
+async function changePlan(id, currentPlan){
+  const plans = ['free','pro','admin'];
+  const next = plans[(plans.indexOf(currentPlan)+1)%plans.length];
+  showConfirm('Ubah Plan', `Ubah plan user menjadi <strong>${next}</strong>?`, async()=>{
+    try{
+      await sbFetch(`/rest/v1/users?id=eq.${id}`,{method:'PATCH',body:JSON.stringify({plan:next})});
+      addLog('admin', `Ubah plan user ke ${next}`);
+      toast('Plan diubah ke '+next,'ok');
+      loadUsers();
+    } catch(e){ toast('Gagal ubah plan: '+e.message,'err'); }
+  });
+}
+function exportUsers(){
+  const csv = ['ID,Nama,Email,Plan,Chat,Bergabung'].concat(allUsers.map(u=>`${u.id},${u.name||''},${u.email},${u.plan||'free'},${u.chat_count||0},${u.created_at||''}`)).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='users.csv'; a.click();
+  toast('Export berhasil','ok');
+}
+
+// ═══════════════════════════════
+// CHAT MODERASI
+// ═══════════════════════════════
+async function loadChats(){
+  try{
+    const [gc, msgs] = await Promise.all([
+      sbFetch('/rest/v1/global_chat?select=*,users(name,email)&order=created_at.desc&limit=100').catch(()=>[]),
+      sbFetch('/rest/v1/messages?select=*&order=created_at.desc&limit=100').catch(()=>[]),
+    ]);
+    allChats = [
+      ...(gc||[]).map(m=>({...m,type:'global',user_name:m.users?.name||m.name})),
+      ...(msgs||[]).map(m=>({...m,type:'private',user_name:'User'})),
+    ].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+    filterChats();
+    updateRefreshLabel();
+  } catch(e){ toast('Gagal load chat: '+e.message,'err'); }
+}
+function filterChats(){
+  const q=(document.getElementById('chat-search')?.value||'').toLowerCase();
+  const type=document.getElementById('chat-filter')?.value||'';
+  const list=allChats.filter(m=>(!q||m.content?.toLowerCase().includes(q))&&(!type||m.type===type));
+  document.getElementById('chat-tbody').innerHTML = list.length ? list.map(m=>`
+    <tr>
+      <td><div class="td-name">${m.user_name||'Anonim'}</div></td>
+      <td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px">${m.content||''}</td>
+      <td><span class="plan-badge ${m.type==='global'?'pro':'free'}">${m.type}</span></td>
+      <td style="color:var(--muted);font-size:11px">${m.created_at?new Date(m.created_at).toLocaleString('id'):'-'}</td>
+      <td><button class="tbl-btn ban" onclick="deleteMsg('${m.id}','${m.type}')">Hapus</button></td>
+    </tr>`).join('') : '<tr><td colspan="5"><div class="empty"><div class="empty-ico">💬</div><div class="empty-text">Tidak ada pesan</div></div></td></tr>';
+}
+async function deleteMsg(id, type){
+  try{
+    const table = type==='global'?'global_chat':'messages';
+    await sbFetch(`/rest/v1/${table}?id=eq.${id}`,{method:'DELETE'});
+    toast('Pesan dihapus','ok');
+    loadChats();
+  } catch(e){ toast('Gagal hapus: '+e.message,'err'); }
+}
+function confirmClearGlobal(){
+  showConfirm('Hapus Global Chat','Semua pesan global chat akan dihapus permanen. Tidak bisa dibatalkan!', async()=>{
+    try{
+      await sbFetch('/rest/v1/global_chat?id=neq.00000000-0000-0000-0000-000000000000',{method:'DELETE'});
+      addLog('admin','Hapus semua global chat');
+      toast('Global chat dibersihkan','ok');
+      loadChats();
+    } catch(e){ toast('Gagal: '+e.message,'err'); }
+  });
+}
+
+// ═══════════════════════════════
+// JAILBREAK DETECTOR
+// ═══════════════════════════════
+function detectJailbreak(text, userId, userEmail){
+  const lower = text.toLowerCase();
+  let score = 0; const matched=[];
+  JB_PATTERNS.forEach(p=>{ if(lower.includes(p)){ score+=p.split(' ').length>1?3:1; matched.push(p); } });
+  if(score===0) return null;
+  const risk = score>=5?'high':score>=2?'med':'low';
+  return { id:Date.now(), userId, userEmail, message:text, patterns:matched, risk, time:new Date().toISOString() };
+}
+function addJailbreakLog(entry){
+  allJailbreaks.unshift(entry);
+  document.getElementById('nb-jb').textContent = allJailbreaks.length;
+  if(currentPage==='jailbreak') renderJailbreak();
+  if(currentPage==='dashboard') document.getElementById('s-jb').textContent = allJailbreaks.length;
+  addLog('jailbreak',`Jailbreak ${entry.risk} oleh ${entry.userEmail||'unknown'}: "${entry.message.slice(0,40)}..."`);
+  if(entry.risk==='high') toast('🚨 Jailbreak HIGH RISK terdeteksi!','err');
+}
+function renderJailbreak(){
+  const filter = document.getElementById('jb-filter')?.value||'';
+  const list = allJailbreaks.filter(j=>!filter||j.risk===filter);
+  document.getElementById('jb-total-count').textContent = allJailbreaks.length;
+  const jbRecent = document.getElementById('jb-recent');
+  const jbList = document.getElementById('jb-list');
+  const html = list.length ? list.map(j=>`
+    <div class="jb-card ${j.risk}">
+      <div class="jb-head">
+        <span class="jb-risk ${j.risk}">${j.risk==='high'?'🔴 TINGGI':j.risk==='med'?'🟡 SEDANG':'🔵 RENDAH'}</span>
+        <span class="jb-user">👤 ${j.userEmail||'anonymous'}</span>
+        <span class="jb-time">${j.time?new Date(j.time).toLocaleString('id'):'-'}</span>
+      </div>
+      <div class="jb-msg">${j.message.slice(0,300)}${j.message.length>300?'...':''}</div>
+      <div class="jb-pattern">Pattern terdeteksi: <span>${j.patterns.join(', ')}</span></div>
+      <div class="jb-actions">
+        <button class="tbl-btn ban" onclick="banFromJb('${j.userId}','${j.userEmail}')">Ban User</button>
+        <button class="tbl-btn" onclick="dismissJb(${j.id})">Dismiss</button>
+      </div>
+    </div>`).join('') : '<div class="empty"><div class="empty-ico">🛡️</div><div class="empty-text">Tidak ada deteksi jailbreak</div></div>';
+  if(jbList) jbList.innerHTML = html;
+  if(jbRecent) jbRecent.innerHTML = list.slice(0,3).map(j=>`
+    <div class="feed-item">
+      <div class="feed-ico jb">🚨</div>
+      <div><div class="feed-text">${j.risk==='high'?'🔴':'j.risk==="med"'?'🟡':'🔵'} ${j.message.slice(0,50)}...</div>
+      <div class="feed-time">${j.userEmail||'anon'} — ${j.time?new Date(j.time).toLocaleString('id'):'-'}</div></div>
+    </div>`).join('') || '<div class="empty" style="padding:20px"><div class="empty-text">Aman ✅</div></div>';
+}
+function dismissJb(id){ allJailbreaks=allJailbreaks.filter(j=>j.id!==id); renderJailbreak(); toast('Dismissed','ok'); }
+function banFromJb(id,email){ if(id) banUser(id,email); }
+function clearJailbreakLog(){ allJailbreaks=[]; renderJailbreak(); toast('Log dibersihkan','ok'); }
+function filterJailbreak(){ renderJailbreak(); }
+
+// ═══════════════════════════════
+// ANNOUNCEMENT
+// ═══════════════════════════════
+async function loadAnnounce(){
+  try{
+    const data = await sbFetch('/rest/v1/announcements?select=*&order=created_at.desc');
+    allAnnounce = data||[];
+    renderAnnounce();
+  } catch(e){ toast('Gagal load pengumuman: '+e.message,'err'); }
+}
+function renderAnnounce(){
+  const icons={info:'ℹ️',warn:'⚠️',success:'✅',danger:'🚨'};
+  document.getElementById('ann-list').innerHTML = allAnnounce.length ? allAnnounce.map(a=>`
+    <div class="ann-card">
+      <div class="ann-ico">${icons[a.badge_type]||'📢'}</div>
+      <div class="ann-body">
+        <div class="ann-title">${a.title}</div>
+        <div class="ann-content">${a.content}</div>
+        <div class="ann-meta">${a.created_at?new Date(a.created_at).toLocaleString('id'):''}</div>
+      </div>
+      <div class="ann-actions">
+        <button class="tbl-btn ban" onclick="deleteAnnounce('${a.id}')">Hapus</button>
+      </div>
+    </div>`).join('') : '<div class="empty"><div class="empty-ico">📢</div><div class="empty-text">Belum ada pengumuman</div></div>';
+}
+async function createAnnouncement(){
+  const title=document.getElementById('ann-title').value.trim();
+  const content=document.getElementById('ann-content').value.trim();
+  const badge_type=document.getElementById('ann-badge').value;
+  if(!title||!content){ toast('Judul dan isi wajib diisi','warn'); return; }
+  try{
+    await sbFetch('/rest/v1/announcements',{method:'POST',body:JSON.stringify({title,content,badge_type,is_active:true})});
+    document.getElementById('ann-title').value='';
+    document.getElementById('ann-content').value='';
+    addLog('admin','Buat pengumuman: '+title);
+    toast('Pengumuman dipublikasi','ok');
+    loadAnnounce();
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+async function deleteAnnounce(id){
+  try{
+    await sbFetch(`/rest/v1/announcements?id=eq.${id}`,{method:'DELETE'});
+    toast('Pengumuman dihapus','ok');
+    loadAnnounce();
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+
+// ═══════════════════════════════
+// FEEDBACK
+// ═══════════════════════════════
+async function loadFeedback(){
+  try{
+    const data = await sbFetch('/rest/v1/feedback?select=*&order=created_at.desc');
+    allFeedback = data||[];
+    filterFeedback();
+    document.getElementById('nb-fb').textContent = allFeedback.length;
+    updateRefreshLabel();
+  } catch(e){ toast('Gagal load feedback: '+e.message,'err'); }
+}
+function filterFeedback(){
+  const type=document.getElementById('fb-filter')?.value||'';
+  const list=allFeedback.filter(f=>!type||f.type===type);
+  document.getElementById('fb-count').textContent=list.length+' feedback';
+  const icons={bug:'🐛',fitur:'✨',pujian:'💙',lainnya:'💬'};
+  document.getElementById('fb-tbody').innerHTML = list.length ? list.map(f=>`
+    <tr>
+      <td><div class="td-name">${f.name||'Anonim'}</div></td>
+      <td><span class="plan-badge free">${icons[f.type]||'💬'} ${f.type||'lainnya'}</span></td>
+      <td style="max-width:300px;font-size:12px;color:var(--muted)">${(f.message||'').slice(0,80)}${(f.message||'').length>80?'...':''}</td>
+      <td style="font-size:11px;color:var(--muted2)">${f.created_at?new Date(f.created_at).toLocaleString('id'):'-'}</td>
+      <td><button class="tbl-btn ban" onclick="deleteFeedback('${f.id}')">Hapus</button></td>
+    </tr>`).join('') : '<tr><td colspan="5"><div class="empty"><div class="empty-ico">💭</div><div class="empty-text">Belum ada feedback</div></div></td></tr>';
+}
+async function deleteFeedback(id){
+  try{
+    await sbFetch(`/rest/v1/feedback?id=eq.${id}`,{method:'DELETE'});
+    toast('Feedback dihapus','ok');
+    loadFeedback();
+  } catch(e){ toast('Gagal: '+e.message,'err'); }
+}
+
+// ═══════════════════════════════
+// BROADCAST
+// ═══════════════════════════════
+function previewBroadcast(){
+  const title=document.getElementById('bc-title').value.trim();
+  const msg=document.getElementById('bc-msg').value.trim();
+  if(!title||!msg){ toast('Judul dan pesan wajib diisi','warn'); return; }
+  toast(`Preview: "${title}" — ${msg.slice(0,40)}...`,'ok');
+}
+async function sendBroadcast(){
+  const title=document.getElementById('bc-title').value.trim();
+  const msg=document.getElementById('bc-msg').value.trim();
+  const target=document.getElementById('bc-target').value;
+  if(!title||!msg){ toast('Judul dan pesan wajib diisi','warn'); return; }
+  showConfirm('Kirim Broadcast',`Kirim broadcast ke <strong>${target==='all'?'semua user':target+' user'}</strong>?`, async()=>{
+    try{
+      await sbFetch('/rest/v1/announcements',{method:'POST',body:JSON.stringify({
+        title:`📡 ${title}`, content:msg, badge_type:'info', is_active:true
+      })});
+      addLog('admin',`Broadcast ke ${target}: ${title}`);
+      toast('Broadcast terkirim!','ok');
+      document.getElementById('bc-title').value='';
+      document.getElementById('bc-msg').value='';
+      loadBroadcastHistory();
+    } catch(e){ toast('Gagal kirim: '+e.message,'err'); }
+  });
+}
+async function loadBroadcastHistory(){
+  try{
+    const data=await sbFetch('/rest/v1/announcements?select=*&title=like.📡*&order=created_at.desc&limit=10');
+    document.getElementById('bc-history').innerHTML=(data||[]).length?(data||[]).map(b=>`
+      <div class="feed-item">
+        <div class="feed-ico ok">📡</div>
+        <div><div class="feed-text">${b.title}</div><div class="feed-time">${b.created_at?new Date(b.created_at).toLocaleString('id'):'-'}</div></div>
+      </div>`).join(''):'<div class="empty" style="padding:20px"><div class="empty-text">Belum ada broadcast</div></div>';
+  } catch(e){}
+}
+
+// ═══════════════════════════════
+// CONFIG
+// ═══════════════════════════════
+function loadConfig(){
+  const cfg=JSON.parse(localStorage.getItem('apollo_admin_config')||'{}');
+  if(cfg.model) document.getElementById('cfg-model').value=cfg.model;
+  if(cfg.tokens) document.getElementById('cfg-tokens').value=cfg.tokens;
+  if(cfg.temp) document.getElementById('cfg-temp').value=cfg.temp;
+  if(cfg.sysprompt) document.getElementById('cfg-sysprompt').value=cfg.sysprompt;
+  if(cfg.rl_free) document.getElementById('cfg-rl-free').value=cfg.rl_free;
+  if(cfg.rl_pro) document.getElementById('cfg-rl-pro').value=cfg.rl_pro;
+  if(cfg.maint) document.getElementById('cfg-maint').checked=cfg.maint;
+  if(cfg.reg!==undefined) document.getElementById('cfg-reg').checked=cfg.reg;
+  if(cfg.gc!==undefined) document.getElementById('cfg-gc').checked=cfg.gc;
+  if(cfg.jb!==undefined) document.getElementById('cfg-jb').checked=cfg.jb;
+  document.getElementById('cfg-jb-patterns').value=JB_PATTERNS.join(', ');
+  if(cfg.maint) document.getElementById('maint-banner').classList.add('show');
+}
+function saveModelConfig(){
+  const cfg=JSON.parse(localStorage.getItem('apollo_admin_config')||'{}');
+  cfg.model=document.getElementById('cfg-model').value;
+  cfg.tokens=document.getElementById('cfg-tokens').value;
+  cfg.temp=document.getElementById('cfg-temp').value;
+  cfg.sysprompt=document.getElementById('cfg-sysprompt').value;
+  localStorage.setItem('apollo_admin_config',JSON.stringify(cfg));
+  addLog('admin','Update konfigurasi model AI');
+  toast('Konfigurasi model disimpan','ok');
+}
+function saveRateLimit(){
+  const cfg=JSON.parse(localStorage.getItem('apollo_admin_config')||'{}');
+  cfg.rl_free=document.getElementById('cfg-rl-free').value;
+  cfg.rl_pro=document.getElementById('cfg-rl-pro').value;
+  localStorage.setItem('apollo_admin_config',JSON.stringify(cfg));
+  addLog('admin','Update rate limit');
+  toast('Rate limit disimpan','ok');
+}
+function saveSystemConfig(){
+  const cfg=JSON.parse(localStorage.getItem('apollo_admin_config')||'{}');
+  cfg.maint=document.getElementById('cfg-maint').checked;
+  cfg.reg=document.getElementById('cfg-reg').checked;
+  cfg.gc=document.getElementById('cfg-gc').checked;
+  cfg.jb=document.getElementById('cfg-jb').checked;
+  localStorage.setItem('apollo_admin_config',JSON.stringify(cfg));
+  addLog('admin','Update system config');
+  toast('Pengaturan sistem disimpan','ok');
+}
+function saveJbPatterns(){
+  const raw=document.getElementById('cfg-jb-patterns').value;
+  JB_PATTERNS=raw.split(',').map(p=>p.trim()).filter(Boolean);
+  toast('Patterns disimpan ('+JB_PATTERNS.length+' pattern)','ok');
+}
+function toggleMaintenance(){
+  const on=document.getElementById('cfg-maint').checked;
+  document.getElementById('maint-banner').classList.toggle('show',on);
+  toast(on?'Mode maintenance AKTIF 🔧':'Mode maintenance dinonaktifkan','warn');
+}
+
+// ═══════════════════════════════
+// LOGS
+// ═══════════════════════════════
+function addLog(type, text){
+  allLogs.unshift({type,text,time:new Date().toISOString()});
+  if(allLogs.length>500) allLogs.pop();
+}
+function renderLogs(){
+  const filter=document.getElementById('log-filter')?.value||'';
+  const list=allLogs.filter(l=>!filter||l.type===filter);
+  const icons={login:'🔑',register:'✨',ban:'🚫',jailbreak:'🚨',chat:'💬',admin:'⚙️'};
+  document.getElementById('logs-feed').innerHTML=list.length?list.map(l=>`
+    <div class="feed-item">
+      <div class="feed-ico ${l.type==='jailbreak'?'warn':l.type==='ban'?'warn':'ok'}">${icons[l.type]||'📋'}</div>
+      <div><div class="feed-text">${l.text}</div><div class="feed-time">${new Date(l.time).toLocaleString('id')}</div></div>
+    </div>`).join(''):'<div class="empty" style="padding:30px"><div class="empty-ico">📋</div><div class="empty-text">Belum ada log</div></div>';
+}
+function filterLogs(){ renderLogs(); }
+function exportLogs(){
+  const csv=['Waktu,Tipe,Keterangan'].concat(allLogs.map(l=>`${l.time},${l.type},"${l.text}"`)).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='logs.csv';a.click();
+  toast('Export logs berhasil','ok');
+}
+
+// ═══════════════════════════════
+// HELPERS
+// ═══════════════════════════════
+function updateRefreshLabel(){
+  const now=new Date().toLocaleTimeString('id');
+  document.getElementById('refresh-label').textContent='Update: '+now;
+  document.getElementById('last-rt').textContent=now;
+}
+
+function refreshAll(){
+  loadPage(currentPage);
+  toast('Data diperbarui','ok');
+}
+
+function toast(msg, type='ok', dur=3000){
+  const el=document.createElement('div');
+  el.className='toast-item '+type;
+  el.textContent=msg;
+  document.getElementById('toast').appendChild(el);
+  setTimeout(()=>el.remove(), dur);
+}
+
+function showConfirm(title, body, onOk){
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-body').innerHTML=`<p style="font-size:13px;color:var(--muted);line-height:1.6">${body}</p>`;
+  const btn=document.getElementById('confirm-ok');
+  btn.onclick=()=>{ closeModal('modal-confirm'); onOk(); };
+  document.getElementById('modal-confirm').classList.add('show');
+}
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+function confirmLogout(){
+  showConfirm('Keluar','Yakin mau logout dari panel admin?',()=>{
+    localStorage.removeItem('apollo_admin');
+    window.location.href='/login/admin';
+  });
+}
+
+// Close modal on bg click
+document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{
+  if(e.target===m) m.classList.remove('show');
+}));
+
+// ═══════════════════════════════
+// REALTIME AUTO REFRESH
+// ═══════════════════════════════
+function startRealtime(){
+  clearInterval(refreshInterval);
+  refreshInterval = setInterval(()=>{ loadPage(currentPage); }, 30000); // 30 detik
+}
+
+// ═══════════════════════════════
+// INIT
+// ═══════════════════════════════
+if(checkAuth()){
+  loadDashboard();
+  startRealtime();
+  addLog('login','Admin login: '+adminSession?.email);
+}
+</script>
+</body>
+</html>
