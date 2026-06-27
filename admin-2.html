@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin Login — Apollo AI</title>
+<meta name="robots" content="noindex,nofollow"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06060E;--surface:#0E0C1A;--card:#16132A;--card2:#1E1A30;
+  --border:#2A2545;--border2:#3D3660;
+  --violet:#7C3AED;--violet2:#6D28D9;--vglow:rgba(124,58,237,.25);
+  --cyan:#06B6D4;--orange:#F97316;--oglow:rgba(249,115,22,.22);
+  --red:#EF4444;--green:#10B981;
+  --snow:#F8FAFC;--muted:#8B9DB8;--muted2:#64748B;
+  --rs:10px;
+}
+html,body{height:100%;background:var(--bg);color:var(--snow);font-family:'Inter',sans-serif}
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(124,58,237,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,.04) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
+.bg-glow{position:fixed;top:-140px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(ellipse,rgba(124,58,237,.11) 0%,transparent 70%);pointer-events:none}
+.bg-glow2{position:fixed;bottom:-80px;right:-60px;width:380px;height:380px;background:radial-gradient(ellipse,rgba(249,115,22,.07) 0%,transparent 70%);pointer-events:none}
+
+.wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;position:relative;z-index:1}
+
+.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:28px;text-decoration:none}
+.logo-gem{width:34px;height:34px;background:linear-gradient(135deg,var(--violet),var(--cyan));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 16px var(--vglow)}
+.logo-text{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:var(--snow)}
+.logo-text span{color:var(--orange)}
+
+.card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:36px 30px;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+
+.shield{width:54px;height:54px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.25);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 16px}
+.admin-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 13px;background:rgba(249,115,22,.1);border:1px solid rgba(249,115,22,.28);border-radius:20px;font-size:11px;color:var(--orange);font-weight:600;letter-spacing:.5px;margin-bottom:14px}
+.card-head{text-align:center;margin-bottom:26px}
+.card-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px}
+.card-sub{font-size:13px;color:var(--muted);line-height:1.6}
+
+.field{margin-bottom:15px}
+.field label{display:block;font-size:11.5px;font-weight:600;color:var(--muted);margin-bottom:7px;letter-spacing:.4px;text-transform:uppercase}
+.inp-wrap{position:relative}
+.field input{width:100%;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);color:var(--snow);font-family:'Inter',sans-serif;font-size:14px;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--orange);box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+.field input::placeholder{color:var(--muted2)}
+.eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:4px;line-height:1}
+
+.alert{padding:11px 14px;border-radius:var(--rs);font-size:12.5px;margin-bottom:14px;display:none;align-items:center;gap:8px;line-height:1.5}
+.alert.show{display:flex}
+.alert.err{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);color:#FCA5A5}
+.alert.ok{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);color:#6EE7B7}
+
+.btn-main{width:100%;padding:13px;background:linear-gradient(135deg,var(--orange),#EA580C);border:none;border-radius:var(--rs);color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 4px 18px var(--oglow);display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px}
+.btn-main:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 8px 26px var(--oglow)}
+.btn-main:disabled{opacity:.5;cursor:not-allowed}
+
+.spin{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+.divider{height:1px;background:var(--border);margin:20px 0}
+.card-footer{text-align:center;font-size:12px;color:var(--muted2)}
+.card-footer a{color:var(--muted);text-decoration:none;transition:color .2s}
+.card-footer a:hover{color:var(--snow)}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.card{animation:fadeIn .3s ease}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+<div class="bg-glow2"></div>
+
+<div class="wrap">
+  <a class="logo-row" href="/">
+    <div class="logo-gem">✦</div>
+    <div class="logo-text">Apollo <span>AI</span></div>
+  </a>
+
+  <div class="card">
+    <div class="card-head">
+      <div class="shield">🛡️</div>
+      <div class="admin-badge">AKSES ADMIN</div>
+      <div class="card-title">Admin Panel</div>
+      <div class="card-sub">Masuk menggunakan akun admin yang terdaftar.</div>
+    </div>
+
+    <div id="alert" class="alert err"></div>
+    <div id="alert-ok" class="alert ok"></div>
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="inp-email" placeholder="admin@email.com" autocomplete="email" autocapitalize="none"/>
+    </div>
+
+    <div class="field">
+      <label>Password</label>
+      <div class="inp-wrap">
+        <input type="password" id="inp-pass" placeholder="••••••••" autocomplete="current-password"/>
+        <button class="eye-btn" type="button" onclick="togglePass()" id="eye-btn">👁️</button>
+      </div>
+    </div>
+
+    <button class="btn-main" id="btn-login" onclick="doLogin()">
+      <span id="btn-text">Masuk sebagai Admin</span>
+      <div class="spin" id="spin"></div>
+    </button>
+
+    <div class="divider"></div>
+    <div class="card-footer">
+      <a href="/">← Kembali ke Apollo AI</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://shvtvwpycygshcyiyxsv.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_XuLP8WNphgA7KJ8OmRv9kw_n2y2HWuQ';
+const ADMIN_EMAILS  = ['gtau22609@gmail.com','kimlana269@gmail.com'];
+
+// Cek sudah login
+try {
+  const s = JSON.parse(localStorage.getItem('apollo_admin') || 'null');
+  if(s && s.token && Date.now() - s.loginAt < 8*60*60*1000){
+    window.location.href = '/admin';
+  }
+} catch(e){ localStorage.removeItem('apollo_admin'); }
+
+function togglePass(){
+  const inp = document.getElementById('inp-pass');
+  const btn = document.getElementById('eye-btn');
+  if(inp.type === 'password'){ inp.type='text'; btn.textContent='🙈'; }
+  else { inp.type='password'; btn.textContent='👁️'; }
+}
+
+function showErr(msg){ 
+  const el=document.getElementById('alert');
+  el.textContent=msg; el.className='alert err show';
+  document.getElementById('alert-ok').className='alert ok';
+}
+function showOk(msg){
+  const el=document.getElementById('alert-ok');
+  el.textContent=msg; el.className='alert ok show';
+  document.getElementById('alert').className='alert err';
+}
+function setLoad(v){
+  document.getElementById('spin').style.display=v?'block':'none';
+  document.getElementById('btn-text').style.display=v?'none':'inline';
+  document.getElementById('btn-login').disabled=v;
+}
+
+async function doLogin(){
+  const email = document.getElementById('inp-email').value.trim().toLowerCase();
+  const pass  = document.getElementById('inp-pass').value;
+
+  // Validasi
+  if(!email){ showErr('Email wajib diisi.'); return; }
+  if(!ADMIN_EMAILS.includes(email)){
+    showErr('⛔ Akses ditolak. Kamu bukan admin Apollo AI.');
+    return;
+  }
+  if(!pass){ showErr('Password wajib diisi.'); return; }
+
+  setLoad(true);
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_ANON},
+      body:JSON.stringify({email,password:pass})
+    });
+    const data = await res.json();
+
+    if(!res.ok || data.error){
+      showErr(data.error_description || data.error || 'Email atau password salah.');
+      setLoad(false);
+      return;
+    }
+
+    // Simpan sesi admin
+    localStorage.setItem('apollo_admin', JSON.stringify({
+      token:   data.access_token,
+      email,
+      name:    data.user?.user_metadata?.name || 'Admin',
+      role:    'admin',
+      loginAt: Date.now()
+    }));
+
+    showOk('✅ Login berhasil! Mengalihkan...');
+    setTimeout(()=>{ window.location.href='/admin'; }, 900);
+
+  } catch(e){
+    showErr('Gagal menghubungi server: '+e.message);
+    setLoad(false);
+  }
+}
+
+// Enter key
+document.addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>
