@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<meta name="theme-color" content="#06060E"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Apollo AI"/>
+<title>Apollo AI Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06060E;--surface:#0E0C1A;--card:#16132A;--card2:#1E1A30;
+  --border:#2A2545;--border2:#3D3660;
+  --violet:#7C3AED;--violet2:#6D28D9;--vglow:rgba(124,58,237,.25);
+  --cyan:#06B6D4;--cglow:rgba(6,182,212,.2);
+  --snow:#F8FAFC;--muted:#8B9DB8;--muted2:#64748B;
+  --green:#10B981;--red:#EF4444;--orange:#F59E0B;
+  --r:14px;--rs:8px;--rx:20px
+}
+html,body{height:100%;background:var(--bg);color:var(--snow);font-family:'Inter',sans-serif;overflow:hidden}
+canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+
+/* LAYOUT */
+.shell{display:flex;height:100vh;position:relative;z-index:1}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  width:250px;min-width:250px;background:var(--surface);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;
+  transition:transform .3s ease;position:relative;z-index:10;pointer-events:auto
+}
+.sb-top{padding:16px 12px 12px;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:9px;font-family:'Space Grotesk',sans-serif;font-size:17px;font-weight:700;color:var(--snow);text-decoration:none;padding:2px 4px}
+.logo-gem{width:30px;height:30px;background:linear-gradient(135deg,var(--violet),var(--cyan));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;box-shadow:0 0 14px var(--vglow)}
+.logo-ver{font-size:9px;color:var(--muted);font-weight:400;margin-left:auto;margin-top:2px}
+.new-btn{width:100%;margin-top:10px;padding:10px 12px;background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.35);color:var(--snow);border-radius:var(--rs);font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;pointer-events:auto}
+.new-btn:hover{background:rgba(124,58,237,.25);box-shadow:0 0 12px var(--vglow)}
+
+.sb-nav{padding:10px 8px 4px;overflow-y:auto;-webkit-overflow-scrolling:touch;position:relative;z-index:1;pointer-events:auto}
+.nav-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted2);padding:6px 8px 3px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:10px 10px;border-radius:var(--rs);cursor:pointer;font-size:12.5px;color:var(--muted);transition:all .15s;border:1px solid transparent;position:relative;white-space:nowrap;-webkit-tap-highlight-color:transparent;touch-action:manipulation;user-select:none;pointer-events:auto;z-index:1}
+.nav-item svg{flex-shrink:0;width:14px;height:14px}
+.nav-item:hover{background:var(--card);color:var(--snow)}
+.nav-item.active{background:rgba(124,58,237,.14);color:var(--snow);border-color:rgba(124,58,237,.28)}
+.nav-badge{margin-left:auto;background:var(--violet);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;min-width:16px;text-align:center}
+.nav-badge.green{background:var(--green)}
+.nav-dot{width:6px;height:6px;border-radius:50%;background:var(--green);margin-left:auto;animation:pulse 2s infinite}
+
+.sb-chats{flex:1;overflow-y:auto;padding:4px 8px}
+.sb-chats::-webkit-scrollbar{width:3px}
+.sb-chats::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.chat-hist-item{display:flex;align-items:center;gap:7px;padding:7px 10px;border-radius:var(--rs);cursor:pointer;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .15s}
+.chat-hist-item:hover{background:var(--card);color:var(--snow)}
+.chat-hist-item.active{background:var(--card);color:var(--snow)}
+
+.sb-footer{padding:10px 8px;border-top:1px solid var(--border);position:relative;z-index:1;pointer-events:auto}
+.user-row{display:flex;align-items:center;gap:9px;padding:10px 10px;border-radius:var(--rs);cursor:pointer;transition:background .15s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;pointer-events:auto}
+.user-row:hover{background:var(--card)}
+.uavatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.uname{font-size:12.5px;font-weight:500;color:var(--snow);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uplan{font-size:10px;color:var(--cyan)}
+
+/* ===== MAIN ===== */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* TOPBAR */
+.topbar{height:54px;padding:0 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(6,6,14,.85);backdrop-filter:blur(14px);flex-shrink:0;position:relative;z-index:5}
+.tb-left{display:flex;align-items:center;gap:10px}
+.hamburger{background:none;border:none;color:var(--muted);cursor:pointer;padding:6px;display:none;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation;min-width:32px;min-height:32px}
+.model-pill{display:flex;align-items:center;gap:6px;padding:5px 11px;background:var(--card);border:1px solid var(--border);border-radius:20px;font-size:11.5px;color:var(--muted);cursor:pointer;transition:border-color .2s}
+.model-pill:hover{border-color:var(--violet)}
+.mdot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.tb-right{display:flex;align-items:center;gap:6px}
+.ib{width:32px;height:32px;border-radius:var(--rs);background:none;border:1px solid transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;text-decoration:none;font-size:13px}
+.ib:hover{background:var(--card);border-color:var(--border);color:var(--snow)}
+.ib.notif-btn{position:relative}
+.notif-count{position:absolute;top:3px;right:3px;width:14px;height:14px;background:var(--red);border-radius:50%;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;display:none}
+.notif-count.show{display:flex}
+
+/* PAGES */
+.page{display:none;flex:1;flex-direction:column;overflow:hidden}
+.page.active{display:flex}
+
+/* ===== HOME PAGE ===== */
+.home-body{flex:1;overflow-y:auto;padding:0}
+.home-body::-webkit-scrollbar{width:4px}
+.home-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* HERO */
+.hero{min-height:82vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;position:relative;background:radial-gradient(ellipse at 50% 20%,rgba(124,58,237,.15) 0%,transparent 65%)}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:80px;background:linear-gradient(to bottom,transparent,var(--bg))}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;padding:5px 14px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.3);border-radius:20px;font-size:11px;color:var(--violet);font-weight:600;margin-bottom:22px;letter-spacing:.4px}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(32px,5vw,58px);font-weight:700;line-height:1.12;margin-bottom:18px;letter-spacing:-1px}
+.hero h1 .grad{background:linear-gradient(90deg,var(--violet),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{color:var(--muted);font-size:15px;max-width:480px;line-height:1.7;margin-bottom:32px}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:48px}
+.btn-primary{padding:12px 28px;background:linear-gradient(135deg,var(--violet),var(--violet2));border:none;border-radius:var(--rs);color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px var(--vglow);text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px var(--vglow)}
+.btn-outline{padding:12px 28px;background:none;border:1px solid var(--border2);border-radius:var(--rs);color:var(--snow);font-family:'Inter',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-outline:hover{border-color:var(--violet);background:var(--vglow)}
+
+/* STATS */
+.stats-row{display:flex;gap:40px;justify-content:center;padding:24px 0;flex-wrap:wrap}
+.stat-item{text-align:center}
+.stat-num{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;background:linear-gradient(135deg,var(--violet),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stat-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* FEATURES */
+.section{padding:60px 24px;max-width:900px;margin:0 auto;width:100%}
+.sec-label{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--violet);margin-bottom:12px}
+.sec-title{font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,3vw,32px);font-weight:700;margin-bottom:10px}
+.sec-sub{color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:36px;max-width:520px}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
+.feat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px;transition:all .2s;cursor:default}
+.feat-card:hover{border-color:rgba(124,58,237,.5);transform:translateY(-3px);background:rgba(124,58,237,.06)}
+.feat-icon{font-size:22px;margin-bottom:10px}
+.feat-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.feat-desc{font-size:11.5px;color:var(--muted);line-height:1.5}
+
+/* MODES */
+.modes-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.mode-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px}
+.mode-card:hover{border-color:var(--violet);background:rgba(124,58,237,.08);transform:translateY(-2px)}
+.mode-card.active-mode{border-color:var(--violet);background:rgba(124,58,237,.14)}
+.mode-icon{font-size:18px;flex-shrink:0}
+.mode-name{font-size:12.5px;font-weight:500}
+
+/* INSTALL */
+.install-box{background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(6,182,212,.08));border:1px solid rgba(124,58,237,.3);border-radius:18px;padding:28px 32px;display:flex;align-items:center;gap:24px;margin:0 24px 60px}
+.install-icon{font-size:36px;flex-shrink:0}
+.install-title{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px}
+.install-sub{font-size:13px;color:var(--muted);margin-bottom:14px}
+.install-steps{display:flex;gap:24px;flex-wrap:wrap}
+.install-step{font-size:12px;color:var(--muted)}
+.install-step strong{color:var(--snow)}
+
+/* HAKCOPYRIGHT */
+.copyright-box{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.2);border-radius:var(--r);padding:16px 20px;margin:0 24px 40px;font-size:12.5px;color:var(--muted);line-height:1.7}
+.copyright-box strong{color:var(--snow)}
+.copyright-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);padding:2px 10px;border-radius:10px;font-size:10px;font-weight:700;color:#F87171;margin-bottom:8px}
+
+/* FOOTER */
+.home-footer{text-align:center;padding:24px;border-top:1px solid var(--border);font-size:11.5px;color:var(--muted)}
+.home-footer a{color:var(--violet);text-decoration:none}
+
+/* ===== CHAT PAGE ===== */
+.chat-body{flex:1;overflow-y:auto;padding:28px 20px;display:flex;flex-direction:column;gap:20px}
+.chat-body::-webkit-scrollbar{width:4px}
+.chat-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.welcome-chat{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:40px 20px;animation:fadeUp .5s ease}
+.welcome-chat .wc-icon{font-size:48px;margin-bottom:16px}
+.welcome-chat h2{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;margin-bottom:8px}
+.welcome-chat p{color:var(--muted);font-size:13.5px;max-width:380px;line-height:1.65;margin-bottom:28px}
+.suggest-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;width:100%;max-width:440px}
+.suggest-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;cursor:pointer;text-align:left;transition:all .15s}
+.suggest-card:hover{border-color:var(--violet);background:rgba(124,58,237,.08);transform:translateY(-2px)}
+.suggest-card .si{font-size:16px;margin-bottom:5px}
+.suggest-card .st{font-size:12px;font-weight:500}
+.suggest-card .sd{font-size:10.5px;color:var(--muted);margin-top:2px}
+
+.msg{display:flex;gap:10px;max-width:min(780px,100%);width:fit-content;animation:fadeUp .25s ease;box-sizing:border-box}
+.msg.user{flex-direction:row-reverse;margin-left:auto;max-width:78%;align-items:flex-start}
+.mavatar{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-top:2px}
+.mavatar.ai{background:linear-gradient(135deg,var(--violet),var(--cyan))}
+.mavatar.user{background:var(--card2);border:1px solid var(--border)}
+.mbubble{padding:11px 15px;border-radius:var(--r);font-size:13.5px;line-height:1.65;max-width:100%;word-break:normal;overflow-wrap:break-word;white-space:pre-wrap;display:inline-block}
+.msg.ai .mbubble{background:var(--card);border:1px solid var(--border);color:var(--snow)}
+.msg.user .mbubble{background:linear-gradient(135deg,var(--violet2),var(--violet));color:#fff}
+.mbubble p{margin-bottom:7px}.mbubble p:last-child{margin-bottom:0}
+.mbubble code{background:rgba(255,255,255,.08);padding:2px 5px;border-radius:4px;font-size:12px;font-family:monospace}
+.mbubble pre{background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:var(--rs);padding:12px;margin:8px 0;overflow-x:auto}
+.mbubble pre code{background:none;padding:0}
+.mbubble ul,ol{padding-left:18px;margin:6px 0}
+.mbubble li{margin-bottom:3px}
+.mactions{display:flex;gap:5px;margin-top:6px;opacity:0;transition:opacity .15s}
+.msg:hover .mactions{opacity:1}
+.mab{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:2px 6px;border-radius:4px;display:flex;align-items:center;gap:4px;transition:all .15s}
+.mab:hover{color:var(--snow);background:var(--card2)}
+.typing{display:flex;align-items:center;gap:5px;padding:12px 15px}
+.tdot{width:6px;height:6px;border-radius:50%;background:var(--violet);animation:bounce 1.2s infinite}
+.tdot:nth-child(2){animation-delay:.2s}.tdot:nth-child(3){animation-delay:.4s}
+
+.input-wrap{padding:14px 18px 18px;border-top:1px solid var(--border);background:rgba(6,6,14,.9);backdrop-filter:blur(14px);flex-shrink:0}
+.input-box{max-width:780px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:all .2s}
+.input-box:focus-within{border-color:var(--violet);box-shadow:0 0 0 3px var(--vglow)}
+.input-inner{display:flex;align-items:flex-end;gap:8px;padding:10px 12px}
+#chat-in{flex:1;background:none;border:none;outline:none;color:var(--snow);font-family:'Inter',sans-serif;font-size:13.5px;line-height:1.5;resize:none;min-height:24px;max-height:150px;overflow-y:auto;word-break:break-word;white-space:pre-wrap;box-sizing:border-box;display:block;width:100%;-webkit-appearance:none}
+#chat-in::placeholder{color:var(--muted2)}
+#chat-in::-webkit-scrollbar{width:3px}
+.send-btn{width:34px;height:34px;border-radius:var(--rs);background:var(--violet);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.send-btn:hover{background:var(--violet2);box-shadow:0 0 14px var(--vglow)}
+.send-btn:disabled{background:var(--border);cursor:not-allowed;box-shadow:none}
+.input-bar{display:flex;align-items:center;justify-content:space-between;padding:5px 12px 9px;border-top:1px solid rgba(42,37,69,.5)}
+.itools{display:flex;gap:3px}
+.itool{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:11.5px;padding:3px 6px;border-radius:5px;display:flex;align-items:center;gap:4px;transition:all .15s}
+.itool:hover{color:var(--snow);background:var(--card2)}
+.icount{font-size:10.5px;color:var(--muted2)}
+
+/* ===== GLOBAL CHAT ===== */
+.global-body{flex:1;overflow-y:auto;padding:20px 16px;display:flex;flex-direction:column;gap:10px}
+.gc-msg{display:flex;gap:10px;animation:fadeUp .2s ease}
+.gc-msg.mine{flex-direction:row-reverse}
+.gc-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.gc-info{display:flex;flex-direction:column;gap:3px;max-width:70%}
+.gc-meta{font-size:10px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.gc-meta.right{flex-direction:row-reverse}
+.gc-bubble{padding:9px 13px;border-radius:12px;font-size:13px;line-height:1.55}
+.gc-msg:not(.mine) .gc-bubble{background:var(--card);border:1px solid var(--border)}
+.gc-msg.mine .gc-bubble{background:linear-gradient(135deg,var(--violet2),var(--violet));color:#fff}
+.gc-input-area{padding:12px 16px;border-top:1px solid var(--border);background:rgba(6,6,14,.9);backdrop-filter:blur(14px);flex-shrink:0;display:flex;gap:8px}
+.gc-in{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);color:var(--snow);font-family:'Inter',sans-serif;font-size:13px;padding:9px 12px;outline:none;transition:border-color .2s}
+.gc-in:focus{border-color:var(--violet)}
+.gc-send{padding:9px 16px;background:var(--violet);border:none;border-radius:var(--rs);color:#fff;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.gc-send:hover{background:var(--violet2)}
+.gc-locked{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:40px 20px;color:var(--muted)}
+.gc-locked svg{margin-bottom:14px;opacity:.4}
+.gc-locked h3{font-size:16px;font-weight:600;margin-bottom:6px;color:var(--snow)}
+.gc-locked p{font-size:13px;margin-bottom:20px}
+
+/* ===== TIM PAGE ===== */
+.tim-body{flex:1;overflow-y:auto;padding:28px 24px}
+.tim-body::-webkit-scrollbar{width:4px}
+.tim-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.tim-header{text-align:center;padding:20px 0 36px}
+.tim-header h2{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin-bottom:8px}
+.tim-header p{color:var(--muted);font-size:14px;max-width:400px;margin:0 auto;line-height:1.6}
+.tim-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;max-width:860px;margin:0 auto 40px}
+.tim-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px 20px;text-align:center;transition:all .2s;position:relative;overflow:hidden}
+.tim-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--violet),var(--cyan));opacity:0;transition:opacity .2s}
+.tim-card:hover{border-color:rgba(124,58,237,.4);transform:translateY(-4px)}
+.tim-card:hover::before{opacity:1}
+.tim-av{width:68px;height:68px;border-radius:50%;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;position:relative}
+.tim-av::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:linear-gradient(135deg,var(--violet),var(--cyan));z-index:-1}
+.tim-name{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px}
+.tim-role{font-size:11.5px;color:var(--cyan);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.tim-bio{font-size:12.5px;color:var(--muted);line-height:1.6}
+.tim-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(124,58,237,.15);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:3px 8px;font-size:10px;font-weight:600;color:var(--violet);margin-top:10px}
+
+/* ===== TENTANG PAGE ===== */
+.tent-body{flex:1;overflow-y:auto;padding:28px 24px}
+.tent-body::-webkit-scrollbar{width:4px}
+.tent-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+.faq-item{border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;background:var(--card);transition:border-color .2s;max-width:720px;margin-left:auto;margin-right:auto}
+.faq-item:hover{border-color:rgba(124,58,237,.4)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;font-size:13.5px;font-weight:500;gap:10px}
+.faq-q svg{flex-shrink:0;color:var(--violet);transition:transform .25s}
+.faq-item.open .faq-q svg{transform:rotate(45deg)}
+.faq-a{font-size:13px;color:var(--muted);line-height:1.75;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s;padding:0 16px}
+.faq-item.open .faq-a{max-height:300px;padding:0 16px 16px}
+
+/* ===== RIWAYAT PAGE ===== */
+.riwayat-body{flex:1;overflow-y:auto;padding:24px}
+.hist-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;color:var(--muted);padding:60px 20px}
+.hist-empty svg{margin-bottom:14px;opacity:.3}
+.hist-grid{display:grid;gap:8px;max-width:720px;margin:0 auto}
+.hist-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px}
+.hist-card:hover{border-color:var(--violet);background:rgba(124,58,237,.06)}
+.hist-icon{width:36px;height:36px;border-radius:var(--rs);background:rgba(124,58,237,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px}
+.hist-info{flex:1;overflow:hidden}
+.hist-title{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.hist-meta{font-size:11px;color:var(--muted)}
+.hist-del{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:4px;transition:color .15s}
+.hist-del:hover{color:var(--red)}
+
+/* ===== PENGUMUMAN ===== */
+.pengumuman-body{flex:1;overflow-y:auto;padding:24px}
+.pg-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;color:var(--muted);padding:60px 20px}
+.pg-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;margin-bottom:10px;max-width:720px;margin-left:auto;margin-right:auto}
+.pg-card .pg-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:8px;font-size:10px;font-weight:700;margin-bottom:8px}
+.pg-badge.info{background:rgba(6,182,212,.15);color:var(--cyan)}
+.pg-badge.warn{background:rgba(245,158,11,.15);color:var(--orange)}
+.pg-badge.urgent{background:rgba(239,68,68,.15);color:var(--red)}
+.pg-title{font-size:14px;font-weight:600;margin-bottom:5px}
+.pg-content{font-size:13px;color:var(--muted);line-height:1.65}
+.pg-time{font-size:11px;color:var(--muted2);margin-top:8px}
+
+/* ===== FEEDBACK ===== */
+.feedback-body{flex:1;overflow-y:auto;padding:24px;display:flex;align-items:flex-start;justify-content:center}
+.feedback-form{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:28px;width:100%;max-width:520px;margin-top:10px}
+.feedback-form h3{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:6px}
+.feedback-form p{color:var(--muted);font-size:13px;margin-bottom:22px;line-height:1.6}
+.form-g{margin-bottom:14px}
+.form-g label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.form-g input,.form-g textarea,.form-g select{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:var(--rs);color:var(--snow);font-family:'Inter',sans-serif;font-size:13.5px;padding:10px 12px;outline:none;transition:border-color .2s}
+.form-g input:focus,.form-g textarea:focus,.form-g select:focus{border-color:var(--violet)}
+.form-g textarea{resize:vertical;min-height:100px}
+.submit-fb{padding:11px 24px;background:linear-gradient(135deg,var(--violet),var(--violet2));border:none;border-radius:var(--rs);color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;width:100%}
+.submit-fb:hover{opacity:.9;box-shadow:0 0 18px var(--vglow)}
+
+/* MODALS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:28px;width:90%;max-width:400px;animation:scaleIn .2s ease}
+.modal h2{font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;margin-bottom:5px}
+.modal .msub{color:var(--muted);font-size:13px;margin-bottom:22px}
+.form-g input{background:var(--card)}
+.modal-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--violet),var(--violet2));border:none;border-radius:var(--rs);color:#fff;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:6px}
+.modal-btn:hover{opacity:.9;box-shadow:0 0 16px var(--vglow)}
+.modal-btn:disabled{opacity:.5;cursor:not-allowed}
+.modal-foot{text-align:center;margin-top:14px;font-size:12.5px;color:var(--muted)}
+.modal-foot a{color:var(--violet);cursor:pointer;text-decoration:none}
+.modal-foot a:hover{text-decoration:underline}
+.err{color:var(--red);font-size:12px;margin-top:5px;display:none}
+.err.show{display:block}
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0;font-size:12px;color:var(--muted)}
+.divider::before,.divider::after{content:'';flex:1;border-top:1px solid var(--border)}
+.alt-btn{width:100%;padding:10px;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);color:var(--snow);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
+.alt-btn:hover{border-color:var(--violet);background:var(--vglow)}
+
+/* NOTIF DROPDOWN */
+.notif-panel{position:absolute;top:54px;right:60px;width:300px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;z-index:200;box-shadow:0 12px 40px rgba(0,0,0,.5);display:none}
+.notif-panel.show{display:block;animation:fadeUp .2s ease}
+.notif-head{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:600}
+.notif-clear{font-size:11px;color:var(--violet);cursor:pointer;background:none;border:none}
+.notif-list{max-height:280px;overflow-y:auto}
+.notif-item{padding:12px 14px;border-bottom:1px solid rgba(42,37,69,.5);font-size:12.5px;line-height:1.5;cursor:pointer;transition:background .15s}
+.notif-item:hover{background:var(--card)}
+.notif-item:last-child{border-bottom:none}
+.notif-empty{padding:24px 14px;text-align:center;color:var(--muted);font-size:12.5px}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;z-index:1000;background:var(--card);border:1px solid var(--border);color:var(--snow);padding:11px 16px;border-radius:var(--r);font-size:12.5px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#toast.show{display:block;animation:slideIn .3s ease}
+
+/* SIDEBAR OVERLAY */
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:350}
+
+/* ANIMS */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes slideIn{from{transform:translateX(16px);opacity:0}to{transform:translateX(0);opacity:1}}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{position:fixed;top:0;left:0;bottom:0;z-index:400;transform:translateX(-100%);width:80%;max-width:280px}
+  .sidebar.open{transform:translateX(0);box-shadow:8px 0 32px rgba(0,0,0,.7)}
+  .sb-overlay.open{display:block}
+  .hamburger{display:flex !important;align-items:center;justify-content:center}
+  .sb-nav{overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1}
+  .suggest-grid{grid-template-columns:1fr}
+  .feat-grid{grid-template-columns:1fr 1fr}
+  .install-box{flex-direction:column;text-align:center;margin:0 12px 40px}
+  .tim-grid{grid-template-columns:1fr}
+  .stats-row{gap:20px}
+  /* hide topbar model pill on very small screens */
+  .model-pill{display:none}
+  /* push content above bottom nav */
+  .page{padding-bottom:64px}
+  .input-wrap{padding-bottom:76px}
+  /* toast above bottom nav */
+  #toast{bottom:76px}
+  /* notif panel position fix */
+  .notif-panel{right:8px;left:8px;width:auto}
+}
+
+/* ===== BOTTOM NAV (mobile only) ===== */
+.bottom-nav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;z-index:50;
+  height:60px;
+  background:rgba(14,12,26,.97);
+  border-top:1px solid var(--border);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  padding:0 4px;
+  align-items:stretch;
+  justify-content:space-around;
+  -webkit-tap-highlight-color:transparent;
+}
+.bn-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;padding:8px 2px;
+  color:var(--muted2);font-size:9.5px;font-weight:500;
+  transition:color .15s;border:none;background:none;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  min-width:0;
+  position:relative;
+}
+.bn-item svg{width:20px;height:20px;flex-shrink:0}
+.bn-item.active{color:var(--violet)}
+.bn-item.active svg{filter:drop-shadow(0 0 6px var(--violet))}
+.bn-item .bn-dot{position:absolute;top:8px;right:calc(50% - 14px);width:7px;height:7px;background:var(--green);border-radius:50%;border:2px solid var(--bg)}
+@media(max-width:768px){
+  .bottom-nav{display:flex}
+}
+.faq-cat{padding:7px 16px;background:var(--card);border:1px solid var(--border2);border-radius:20px;color:var(--muted);font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;touch-action:manipulation;-webkit-tap-highlight-color:transparent;white-space:nowrap}
+.faq-cat:hover{border-color:var(--violet);color:var(--snow)}
+.faq-cat.active{background:rgba(124,58,237,.15);border-color:rgba(124,58,237,.5);color:var(--snow);font-weight:500}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="sb-overlay" id="sb-overlay" onclick="closeSidebar()"></div>
+
+<div class="shell">
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-top">
+    <a class="logo" href="#">
+      <div class="logo-gem">✦</div>
+      <span>Apollo AI</span>
+      <span class="logo-ver">v3.8.6.2</span>
+    </a>
+    <button class="new-btn" onclick="goPage('chat',null);newChat()">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Chat Baru
+    </button>
+  </div>
+
+  <div class="sb-nav">
+    <div class="nav-label">Menu</div>
+    <div class="nav-item active" onclick="goPage('home',this)" id="nav-home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </div>
+    <div class="nav-item" onclick="goPage('tim',this)" id="nav-tim">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Tim
+    </div>
+    <div class="nav-item" onclick="goPage('chat',this)" id="nav-chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat
+    </div>
+    <div class="nav-item" onclick="goPage('riwayat',this)" id="nav-riwayat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Riwayat
+    </div>
+    <div class="nav-item" onclick="goPage('tentang',this)" id="nav-tentang">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      Tentang
+    </div>
+    <div class="nav-item" onclick="goPage('pengumuman',this)" id="nav-pengumuman">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      Pengumuman
+      <span class="nav-badge" id="pg-badge" style="display:none">!</span>
+    </div>
+    <div class="nav-item" onclick="goPage('global',this)" id="nav-global">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      Global Chat
+      <span class="nav-dot"></span>
+    </div>
+    <div class="nav-item" onclick="goPage('faq',this)" id="nav-faq">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      FAQ
+    </div>
+    <div class="nav-item" onclick="goPage('feedback',this)" id="nav-feedback">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      Feedback
+    </div>
+
+    <div class="nav-label" style="margin-top:8px">Riwayat Chat</div>
+    <div id="sb-chats"></div>
+  </div>
+
+  <div class="sb-footer">
+    <div class="nav-item" onclick="goPage('chat',null);closeSidebar()" style="color:var(--muted);font-size:11.5px;padding:6px 10px">
+      <a href="https://discord.gg/KSQ88HjGM" target="_blank" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057.1 18.082.119 18.105.14 18.12a19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg>
+        Discord
+      </a>
+    </div>
+    <div class="nav-item" style="color:var(--muted);font-size:11.5px;padding:6px 10px">
+      <a href="https://chat.whatsapp.com/HthS8c13Fwn4INMmrpYfXe" target="_blank" style="color:inherit;text-decoration:none;display:flex;align-items:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        WhatsApp
+      </a>
+    </div>
+    <div class="user-row" onclick="showProfile()" id="user-row">
+      <div class="uavatar" id="sb-av">?</div>
+      <div style="flex:1;overflow:hidden">
+        <div class="uname" id="sb-uname">Masuk / Daftar</div>
+        <div class="uplan" id="sb-uplan">Gratis</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="tb-left">
+      <button class="hamburger ib" onclick="toggleSidebar()">
+        <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="model-pill" onclick="showToast('ℹ️ Apollo-3.5 — Model AI eksklusif Apollo AI')">
+        <div class="mdot"></div>
+        <span>Apollo-3.5</span>
+        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+    <div class="tb-right">
+      <!-- Notif -->
+      <button class="ib notif-btn" id="notif-btn" onclick="toggleNotif()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-count" id="notif-count">0</span>
+      </button>
+      <!-- Admin -->
+      <a class="ib" href="login-admin.html" id="admin-link" title="Admin Panel" style="font-size:11px;font-weight:700;color:var(--orange);display:none">Admin</a>
+      <!-- Login/Logout -->
+      <button class="ib" onclick="showLogin()" id="btn-login" title="Masuk">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </button>
+      <button class="ib" onclick="doLogout()" id="btn-logout" style="display:none" title="Keluar">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- NOTIF PANEL -->
+  <div class="notif-panel" id="notif-panel">
+    <div class="notif-head">
+      🔔 Notifikasi
+      <button class="notif-clear" onclick="clearNotifs()">Hapus semua</button>
+    </div>
+    <div class="notif-list" id="notif-list">
+      <div class="notif-empty">Belum ada notifikasi</div>
+    </div>
+  </div>
+
+  <!-- ===== HOME PAGE ===== -->
+  <div class="page active" id="page-home">
+    <div class="home-body">
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-tag">✦ Apollo AI Studio · Indonesia · v3.8.6.2</div>
+        <h1>Asisten AI Generasi Baru<br/><span class="grad">Cepat, Cerdas, Gratis</span></h1>
+        <p class="hero-sub">Hadir dengan mode khusus untuk setiap kebutuhanmu — dari belajar, coding, menulis, hingga ngobrol santai.</p>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="goPage('chat',null)">✦ Mulai Chat</button>
+          <button class="btn-outline" onclick="goPage('tentang',null)">Tentang Apollo</button>
+        </div>
+        <div class="stats-row">
+          <div class="stat-item"><div class="stat-num">70B</div><div class="stat-lbl">Parameter</div></div>
+          <div class="stat-item"><div class="stat-num">8+</div><div class="stat-lbl">Mode AI</div></div>
+          <div class="stat-item"><div class="stat-num">0Rp</div><div class="stat-lbl">Gratis</div></div>
+          <div class="stat-item"><div class="stat-num">🛡️</div><div class="stat-lbl">Hak Cipta Apollo AI</div></div>
+        </div>
+      </div>
+
+      <!-- FEATURES -->
+      <div class="section">
+        <div class="sec-label">⚡ Fitur Unggulan</div>
+        <div class="sec-title">Semua yang Kamu Butuhkan</div>
+        <div class="sec-sub">Apollo AI hadir dengan berbagai fitur canggih yang siap membantu produktivitasmu setiap hari.</div>
+        <div class="feat-grid">
+          <div class="feat-card"><div class="feat-icon">⚡</div><div class="feat-name">Super Cepat</div><div class="feat-desc">Respons instan via API terdepan</div></div>
+          <div class="feat-card"><div class="feat-icon">📸</div><div class="feat-name">Vision AI</div><div class="feat-desc">Analisis foto &amp; gambar (segera)</div></div>
+          <div class="feat-card"><div class="feat-icon">🎓</div><div class="feat-name">Mode Ujian</div><div class="feat-desc">Latihan soal + penjelasan detail</div></div>
+          <div class="feat-card"><div class="feat-icon">📝</div><div class="feat-name">Mode Skripsi</div><div class="feat-desc">Bantu penulisan akademik ilmiah</div></div>
+          <div class="feat-card"><div class="feat-icon">💻</div><div class="feat-name">Mode Coding</div><div class="feat-desc">Coding + debug otomatis cepat</div></div>
+          <div class="feat-card"><div class="feat-icon">✨</div><div class="feat-name">Mode Kreatif</div><div class="feat-desc">Cerita, puisi, konten kreatif</div></div>
+          <div class="feat-card"><div class="feat-icon">🔍</div><div class="feat-name">Deep Search</div><div class="feat-desc">Analisis mendalam multi-sumber</div></div>
+          <div class="feat-card"><div class="feat-icon">😊</div><div class="feat-name">Mode Santai</div><div class="feat-desc">Ngobrol bebas &amp; asik</div></div>
+        </div>
+      </div>
+
+      <!-- MODES -->
+      <div class="section" style="padding-top:0">
+        <div class="sec-label">🎯 Mode AI</div>
+        <div class="sec-title">Pilih Mode Sesuai Kebutuhanmu</div>
+        <div class="sec-sub">Klik mode dan langsung mulai chat dengan konteks yang tepat.</div>
+        <div class="modes-grid" id="modes-grid">
+          <div class="mode-card" onclick="setMode('ujian')"><div class="mode-icon">🎓</div><div class="mode-name">Mode Ujian</div></div>
+          <div class="mode-card" onclick="setMode('skripsi')"><div class="mode-icon">📝</div><div class="mode-name">Mode Skripsi</div></div>
+          <div class="mode-card" onclick="setMode('coding')"><div class="mode-icon">💻</div><div class="mode-name">Mode Coding</div></div>
+          <div class="mode-card" onclick="setMode('kreatif')"><div class="mode-icon">✨</div><div class="mode-name">Mode Kreatif</div></div>
+          <div class="mode-card" onclick="setMode('santai')"><div class="mode-icon">😊</div><div class="mode-name">Mode Santai</div></div>
+          <div class="mode-card" onclick="setMode('analisis')"><div class="mode-icon">📊</div><div class="mode-name">Mode Analisis</div></div>
+          <div class="mode-card" onclick="setMode('terjemah')"><div class="mode-icon">🌐</div><div class="mode-name">Mode Terjemah</div></div>
+          <div class="mode-card" onclick="setMode('normal')"><div class="mode-icon">🤖</div><div class="mode-name">Mode Normal</div></div>
+        </div>
+      </div>
+
+      <!-- INSTALL -->
+      <div class="install-box">
+        <div class="install-icon">📱</div>
+        <div style="flex:1">
+          <div class="install-title">🪐 Install Apollo AI sebagai App!</div>
+          <div class="install-sub">Langsung di homescreen HP kamu — tanpa Play Store, gratis!</div>
+          <div class="install-steps">
+            <div class="install-step">🤖 <strong>Android:</strong> Chrome → ⋮ → "Tambahkan ke layar utama"</div>
+            <div class="install-step">🍎 <strong>iPhone:</strong> Safari → Share → "Add to Home Screen"</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COPYRIGHT -->
+      <div class="copyright-box">
+        <div class="copyright-badge">🛡️ ORIGINAL</div>
+        <br/>
+        Apollo AI diciptakan dari nol oleh Tim Apollo AI — <strong>dilarang keras</strong> menyalin, mendistribusikan, atau mengklaim sebagai milik sendiri.<br/>
+        Dilarang copy-paste kode, desain, atau konten Apollo AI tanpa izin tertulis dari Tim Apollo AI.<br/>
+        Apollo AI bukan tiruan dari produk manapun — <strong>100% original karya Tim Apollo AI Indonesia</strong>
+      </div>
+
+      <div class="home-footer">
+        © 2026 Apollo AI Studio — All Rights Reserved · Iky · Lana · Deii<br/>
+        <a href="https://discord.gg/KSQ88HjGM" target="_blank">Discord</a> · <a href="https://chat.whatsapp.com/HthS8c13Fwn4INMmrpYfXe" target="_blank">WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHAT PAGE ===== -->
+  <div class="page" id="page-chat">
+    <div class="chat-body" id="chat-body">
+      <div class="welcome-chat" id="welcome-chat">
+        <div class="wc-icon">✦</div>
+        <h2>Hei, saya <span style="background:linear-gradient(90deg,var(--violet),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Apollo</span></h2>
+        <p>Mode: <span id="mode-label" style="color:var(--cyan);font-weight:600">Normal</span> — Tanya apa saja!</p>
+        <div class="suggest-grid">
+          <div class="suggest-card" onclick="sendSuggest('Jelaskan machine learning dengan contoh sederhana')"><div class="si">🧠</div><div class="st">Belajar AI</div><div class="sd">Machine learning sederhana</div></div>
+          <div class="suggest-card" onclick="sendSuggest('Buatkan skrip Python untuk scraping web sederhana')"><div class="si">💻</div><div class="st">Koding</div><div class="sd">Python web scraping</div></div>
+          <div class="suggest-card" onclick="sendSuggest('Bantu saya menulis esai argumentatif tentang pendidikan')"><div class="si">✍️</div><div class="st">Menulis</div><div class="sd">Esai argumentatif</div></div>
+          <div class="suggest-card" onclick="sendSuggest('Ceritakan lelucon lucu dalam Bahasa Indonesia')"><div class="si">😄</div><div class="st">Hiburan</div><div class="sd">Cerita lucu & santai</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="input-wrap">
+      <div class="input-box">
+        <div class="input-inner">
+          <textarea id="chat-in" placeholder="Ketik pesan..." rows="1" onkeydown="handleKey(event)" oninput="autoR(this);updCount(this)" style="touch-action:manipulation;-webkit-user-select:text;user-select:text"></textarea>
+          <button class="send-btn" id="send-btn" onclick="sendMsg()" disabled>
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+          </button>
+        </div>
+        <div class="input-bar">
+          <div class="itools">
+            <button class="itool" title="Lampirkan (segera)"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg> Lampirkan</button>
+            <button class="itool" title="Mode" onclick="showModeMenu()"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> <span id="mode-indicator">Normal</span></button>
+          </div>
+          <span class="icount" id="char-count">0 / 4000</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TIM PAGE ===== -->
+  <div class="page" id="page-tim">
+    <div class="tim-body">
+      <div class="tim-header">
+        <div class="sec-label" style="justify-content:center">👥 Tim Apollo AI</div>
+        <h2>Tim Kami</h2>
+        <p>Orang-orang di balik Apollo AI — membangun asisten terbaik untuk Indonesia.</p>
+      </div>
+      <div class="tim-grid">
+        <div class="tim-card">
+          <div class="tim-av" style="background:linear-gradient(135deg,#7C3AED,#6D28D9)">I</div>
+          <div class="tim-name">Iky</div>
+          <div class="tim-role">CEO & Lead Developer</div>
+          <div class="tim-bio">Visioner & arsitek utama Apollo AI. Membangun sistem dari nol dengan semangat penuh untuk AI Indonesia.</div>
+          <div class="tim-badge">🏆 Founder</div>
+        </div>
+        <div class="tim-card" style="opacity:.55;border-style:dashed">
+          <div class="tim-av" style="background:var(--card2);border:2px dashed var(--border2)">?</div>
+          <div class="tim-name" style="color:var(--muted)">Posisi Terbuka</div>
+          <div class="tim-role">UI/UX & Frontend</div>
+          <div class="tim-bio" style="color:var(--muted2)">Bergabunglah bersama tim Apollo AI dan bantu ciptakan pengalaman terbaik untuk pengguna Indonesia.</div>
+          <div class="tim-badge" style="opacity:.5">🎨 Coming Soon</div>
+        </div>
+        <div class="tim-card" style="opacity:.55;border-style:dashed">
+          <div class="tim-av" style="background:var(--card2);border:2px dashed var(--border2)">?</div>
+          <div class="tim-name" style="color:var(--muted)">Posisi Terbuka</div>
+          <div class="tim-role">Community & Support</div>
+          <div class="tim-bio" style="color:var(--muted2)">Mau jadi bagian dari komunitas Apollo AI? Hubungi kami melalui Discord atau WhatsApp.</div>
+          <div class="tim-badge" style="opacity:.5">💬 Coming Soon</div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:20px 0 40px;color:var(--muted);font-size:13px">
+        Bergabung bersama komunitas Apollo AI di 
+        <a href="https://discord.gg/KSQ88HjGM" target="_blank" style="color:var(--violet)">Discord</a> &amp; 
+        <a href="https://chat.whatsapp.com/HthS8c13Fwn4INMmrpYfXe" target="_blank" style="color:var(--green)">WhatsApp</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GLOBAL CHAT PAGE ===== -->
+  <div class="page" id="page-global">
+    <div id="gc-locked" class="gc-locked">
+      <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <h3>Login untuk Bergabung</h3>
+      <p>Global Chat memerlukan akun aktif.<br/>Kamu bisa melihat percakapan komunitas!</p>
+      <button class="btn-primary" onclick="showLogin()">Masuk / Daftar</button>
+    </div>
+    <div id="gc-active" style="display:none;flex:1;flex-direction:column;overflow:hidden">
+      <div class="global-body" id="gc-body">
+        <div class="gc-msg">
+          <div class="gc-av" style="background:linear-gradient(135deg,var(--violet),var(--cyan))">A</div>
+          <div class="gc-info">
+            <div class="gc-meta"><strong>Apollo Bot</strong><span>Sekarang</span></div>
+            <div class="gc-bubble">Selamat datang di Global Chat Apollo AI! 👋 Bergabunglah dan ngobrol bersama komunitas.</div>
+          </div>
+        </div>
+      </div>
+      <div class="gc-input-area">
+        <input class="gc-in" id="gc-in" placeholder="Kirim pesan ke semua..." onkeydown="if(event.key==='Enter')sendGC()" maxlength="500"/>
+        <button class="gc-send" onclick="sendGC()">Kirim</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RIWAYAT PAGE ===== -->
+  <div class="page" id="page-riwayat">
+    <div class="riwayat-body">
+      <div class="sec-label" style="margin-bottom:16px">📖 Riwayat Chat</div>
+      <div id="hist-content">
+        <div class="hist-empty">
+          <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <p style="font-size:13.5px;color:var(--muted)">Belum ada riwayat chat.</p>
+          <button class="btn-primary" style="margin-top:16px;font-size:13px;padding:9px 20px" onclick="goPage('chat',null)">Mulai Chat Pertama</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TENTANG PAGE ===== -->
+  <div class="page" id="page-tentang">
+    <div class="tent-body">
+      <div style="text-align:center;padding:20px 0 32px;max-width:720px;margin:0 auto">
+        <div class="sec-label" style="justify-content:center">ℹ️ Tentang Apollo</div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;margin-bottom:8px">Tentang Apollo AI</h2>
+        <p style="color:var(--muted);font-size:13.5px;line-height:1.7">Platform AI asisten generasi baru buatan Tim Apollo AI Indonesia</p>
+      </div>
+      <div class="faq-item open"><div class="faq-q" onclick="toggleFaq(this)">Apa itu Apollo AI?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Apollo AI adalah platform asisten kecerdasan buatan yang dibangun khusus untuk pengguna Indonesia. Ditenagai oleh model AI canggih, Apollo hadir dengan berbagai mode untuk membantu belajar, bekerja, coding, menulis, dan ngobrol santai — semuanya gratis.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Siapa yang membuat Apollo AI?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Apollo AI dibuat oleh Tim Apollo AI Indonesia yang terdiri dari Iky (CEO & Lead Dev), Lana (UI/UX & Frontend), dan Deii (Community & Support). Proyek ini 100% original karya anak bangsa Indonesia.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Apakah Apollo AI gratis?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Ya! Apollo AI sepenuhnya gratis untuk digunakan. Cukup buka browser, tidak perlu unduh aplikasi. Tersedia juga sebagai PWA yang bisa diinstall langsung ke homescreen HP kamu.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Apakah chat saya aman dan privat?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Ya. API key AI tersimpan aman di server backend dan tidak pernah terekspos ke browser. Percakapan kamu diproses melalui proxy server terenkripsi. Kami tidak menjual data percakapan kepada pihak ketiga.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Ada berapa mode AI di Apollo?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Apollo AI saat ini memiliki 8+ mode: Mode Normal, Mode Ujian, Mode Skripsi, Mode Coding, Mode Kreatif, Mode Santai, Mode Analisis, dan Mode Terjemah. Setiap mode dioptimalkan untuk konteks yang berbeda.</div></div>
+      <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Bagaimana cara install Apollo AI sebagai app?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Android (Chrome): Buka Apollo AI → tap ⋮ (titik tiga) → "Tambahkan ke layar utama" atau "Install App". iPhone (Safari): Buka Apollo AI → tap ikon Share ↑ → "Add to Home Screen" → Add. Selesai! Apollo AI akan muncul di homescreen seperti app beneran.</div></div>
+    </div>
+  </div>
+
+  <!-- ===== PENGUMUMAN PAGE ===== -->
+  <div class="page" id="page-pengumuman">
+    <div class="pengumuman-body">
+      <div class="sec-label" style="margin-bottom:16px">🔔 Pengumuman Resmi</div>
+      <div id="pg-list">
+        <div class="pg-card">
+          <div class="pg-badge info">ℹ️ INFO</div>
+          <div class="pg-title">Selamat Datang di Apollo AI Studio!</div>
+          <div class="pg-content">Apollo AI kini hadir dengan tampilan baru yang lebih modern dan berbagai fitur baru. Nikmati pengalaman chat AI terbaik untuk pengguna Indonesia.</div>
+          <div class="pg-time">Tim Apollo AI · Hari ini</div>
+        </div>
+        <div class="pg-card">
+          <div class="pg-badge warn">⚡ UPDATE</div>
+          <div class="pg-title">Global Chat Segera Hadir!</div>
+          <div class="pg-content">Fitur Global Chat sedang dalam pengembangan. Segera kamu bisa ngobrol real-time dengan pengguna Apollo lainnya. Stay tuned!</div>
+          <div class="pg-time">Tim Apollo AI · Kemarin</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FAQ PAGE ===== -->
+  <div class="page" id="page-faq">
+    <div class="tent-body">
+      <div style="text-align:center;padding:20px 0 28px;max-width:720px;margin:0 auto">
+        <div class="sec-label" style="justify-content:center">❓ FAQ</div>
+        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;margin-bottom:8px">Pertanyaan yang Sering Ditanya</h2>
+        <p style="color:var(--muted);font-size:13px;line-height:1.7">Temukan jawaban atas pertanyaan umum tentang Apollo AI</p>
+      </div>
+
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+        <button class="faq-cat active" onclick="filterFaqCat('semua',this)">Semua</button>
+        <button class="faq-cat" onclick="filterFaqCat('umum',this)">Umum</button>
+        <button class="faq-cat" onclick="filterFaqCat('akun',this)">Akun</button>
+        <button class="faq-cat" onclick="filterFaqCat('fitur',this)">Fitur</button>
+        <button class="faq-cat" onclick="filterFaqCat('privasi',this)">Privasi</button>
+        <button class="faq-cat" onclick="filterFaqCat('teknis',this)">Teknis</button>
+      </div>
+
+      <div id="faq-list">
+
+        <!-- UMUM -->
+        <div class="faq-item open" data-cat="umum"><div class="faq-q" onclick="toggleFaq(this)">Apa itu Apollo AI?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Apollo AI adalah platform asisten kecerdasan buatan yang dibuat khusus untuk pengguna Indonesia. Ditenagai model AI canggih, Apollo hadir dengan berbagai mode untuk belajar, bekerja, coding, menulis, dan ngobrol santai — semuanya gratis.</div></div>
+
+        <div class="faq-item" data-cat="umum"><div class="faq-q" onclick="toggleFaq(this)">Siapa yang membuat Apollo AI?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Apollo AI dibuat oleh Tim Apollo AI Indonesia. Proyek ini 100% original karya anak bangsa Indonesia yang bertujuan menghadirkan AI berkualitas tinggi yang mudah diakses semua orang.</div></div>
+
+        <div class="faq-item" data-cat="umum"><div class="faq-q" onclick="toggleFaq(this)">Apakah Apollo AI gratis?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Ya! Apollo AI sepenuhnya gratis untuk digunakan. Cukup buka browser, tidak perlu unduh aplikasi. Tersedia juga sebagai PWA yang bisa diinstall langsung ke homescreen HP kamu.</div></div>
+
+        <div class="faq-item" data-cat="umum"><div class="faq-q" onclick="toggleFaq(this)">Apakah Apollo AI bisa digunakan offline?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Tidak, Apollo AI membutuhkan koneksi internet karena setiap pesan diproses oleh server AI. Namun tampilan aplikasi bisa di-cache sebagai PWA sehingga loading lebih cepat.</div></div>
+
+        <!-- AKUN -->
+        <div class="faq-item" data-cat="akun"><div class="faq-q" onclick="toggleFaq(this)">Apakah saya harus daftar akun?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Tidak wajib! Kamu bisa langsung chat tanpa akun. Tapi kalau daftar akun, kamu dapat fitur tambahan seperti riwayat chat tersimpan, profil personal, dan akses ke semua fitur Apollo AI.</div></div>
+
+        <div class="faq-item" data-cat="akun"><div class="faq-q" onclick="toggleFaq(this)">Bagaimana cara daftar akun Apollo AI?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Klik ikon 👤 di pojok kanan atas → pilih "Daftar" → isi nama, email, dan password → klik Daftar. Selesai! Akun langsung aktif tanpa perlu verifikasi email.</div></div>
+
+        <div class="faq-item" data-cat="akun"><div class="faq-q" onclick="toggleFaq(this)">Lupa password, bagaimana cara reset?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Saat ini fitur reset password sedang dalam pengembangan. Kalau lupa password, silakan hubungi admin melalui Discord atau WhatsApp yang tersedia di sidebar Apollo AI.</div></div>
+
+        <div class="faq-item" data-cat="akun"><div class="faq-q" onclick="toggleFaq(this)">Apa perbedaan akun Free dan Pro?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Akun Free sudah bisa mengakses semua fitur dasar Apollo AI dengan limit 15 request per menit. Akun Pro mendapatkan limit lebih tinggi (60 request/menit), prioritas respons, dan fitur eksklusif yang akan terus ditambah.</div></div>
+
+        <!-- FITUR -->
+        <div class="faq-item" data-cat="fitur"><div class="faq-q" onclick="toggleFaq(this)">Ada berapa mode AI di Apollo?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Apollo AI memiliki 8+ mode: Normal, Ujian, Skripsi, Coding, Kreatif, Santai, Analisis, dan Terjemah. Setiap mode dioptimalkan untuk konteks berbeda. Klik tombol ⚙️ Normal di bawah kolom chat untuk ganti mode.</div></div>
+
+        <div class="faq-item" data-cat="fitur"><div class="faq-q" onclick="toggleFaq(this)">Bagaimana cara pakai Global Chat?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Buka menu sidebar → klik "Global Chat" atau tap ikon 🌐 di navbar bawah. Kamu harus login dulu untuk bisa mengirim pesan. Global Chat adalah ruang chat publik bersama semua pengguna Apollo AI.</div></div>
+
+        <div class="faq-item" data-cat="fitur"><div class="faq-q" onclick="toggleFaq(this)">Apakah Apollo AI bisa bantu coding?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Tentu! Gunakan Mode Coding untuk pengalaman terbaik. Apollo AI bisa membantu debug kode, menjelaskan konsep pemrograman, menulis fungsi baru, review kode, dan banyak lagi. Mendukung semua bahasa pemrograman populer.</div></div>
+
+        <div class="faq-item" data-cat="fitur"><div class="faq-q" onclick="toggleFaq(this)">Bagaimana cara install Apollo AI ke HP?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Android (Chrome): tap ⋮ → "Tambahkan ke layar utama". iPhone (Safari): tap ikon Share ↑ → "Add to Home Screen" → Add. Apollo AI akan muncul di homescreen seperti app beneran, lengkap dengan ikon dan splash screen.</div></div>
+
+        <div class="faq-item" data-cat="fitur"><div class="faq-q" onclick="toggleFaq(this)">Apakah ada limit panjang pesan?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Ya, maksimal 4000 karakter per pesan. Untuk teks panjang seperti dokumen atau kode, disarankan untuk memotongnya menjadi beberapa bagian atau menggunakan fitur Lampirkan.</div></div>
+
+        <!-- PRIVASI -->
+        <div class="faq-item" data-cat="privasi"><div class="faq-q" onclick="toggleFaq(this)">Apakah chat saya aman dan privat?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Ya. API key AI tersimpan aman di server backend dan tidak pernah terekspos ke browser. Percakapan diproses melalui proxy server terenkripsi. Kami tidak menjual data percakapan kepada pihak ketiga manapun.</div></div>
+
+        <div class="faq-item" data-cat="privasi"><div class="faq-q" onclick="toggleFaq(this)">Data apa saja yang Apollo AI simpan?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Jika kamu memiliki akun: nama, email, riwayat chat (untuk fitur history), dan jumlah chat. Jika tanpa akun: tidak ada data yang disimpan secara permanen. Semua data disimpan di server Supabase yang terenkripsi.</div></div>
+
+        <div class="faq-item" data-cat="privasi"><div class="faq-q" onclick="toggleFaq(this)">Bisakah saya hapus akun dan data saya?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Ya. Kamu bisa menghapus akun beserta seluruh data melalui menu profil. Seluruh data akan dihapus permanen dari server kami dalam 24 jam setelah permintaan penghapusan.</div></div>
+
+        <!-- TEKNIS -->
+        <div class="faq-item" data-cat="teknis"><div class="faq-q" onclick="toggleFaq(this)">Model AI apa yang digunakan Apollo?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Apollo AI menggunakan model Llama 3.3 70B dari Meta yang dijalankan via Groq untuk kecepatan inferensi yang sangat tinggi. Model ini adalah salah satu LLM open-source terbaik yang tersedia saat ini.</div></div>
+
+        <div class="faq-item" data-cat="teknis"><div class="faq-q" onclick="toggleFaq(this)">Kenapa Apollo AI terkadang lambat?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Kecepatan respons dipengaruhi oleh panjang pesan, kompleksitas pertanyaan, dan kondisi server Groq. Biasanya respons datang dalam 1-3 detik. Jika sangat lambat, coba refresh halaman atau periksa koneksi internet kamu.</div></div>
+
+        <div class="faq-item" data-cat="teknis"><div class="faq-q" onclick="toggleFaq(this)">Browser apa yang didukung?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Apollo AI mendukung semua browser modern: Chrome, Firefox, Edge, Safari, dan Opera. Untuk pengalaman terbaik di HP, disarankan menggunakan Chrome (Android) atau Safari (iPhone) versi terbaru.</div></div>
+
+        <div class="faq-item" data-cat="teknis"><div class="faq-q" onclick="toggleFaq(this)">Kenapa muncul error "Gagal terhubung ke server"?<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></div><div class="faq-a">Kemungkinan penyebab: (1) Koneksi internet bermasalah, (2) Server sedang maintenance, (3) Rate limit tercapai (tunggu 1 menit). Jika masalah berlanjut lebih dari 10 menit, hubungi admin melalui Discord.</div></div>
+
+      </div>
+
+      <div style="text-align:center;margin-top:28px;padding:20px;background:var(--card);border:1px solid var(--border);border-radius:12px">
+        <div style="font-size:15px;font-weight:600;margin-bottom:6px">Pertanyaanmu tidak ada di sini?</div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Hubungi kami langsung atau kirim feedback</p>
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+          <button class="btn-primary" onclick="goPage('feedback',null)" style="font-size:12.5px;padding:8px 16px">💬 Kirim Feedback</button>
+          <button class="btn-outline" onclick="goPage('tentang',null)" style="font-size:12.5px;padding:8px 16px">ℹ️ Tentang Apollo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== FEEDBACK PAGE ===== -->
+  <div class="page" id="page-feedback">
+    <div class="feedback-body">
+      <div class="feedback-form">
+        <h3>💬 Feedback</h3>
+        <p>Bantu kami meningkatkan Apollo AI dengan masukan dan saran kamu!</p>
+        <div class="form-g"><label>Jenis Feedback</label>
+          <select id="fb-type"><option>Saran Fitur</option><option>Laporan Bug</option><option>Pujian 🎉</option><option>Lainnya</option></select>
+        </div>
+        <div class="form-g"><label>Nama (opsional)</label><input type="text" id="fb-name" placeholder="Nama kamu"/></div>
+        <div class="form-g"><label>Pesan</label><textarea id="fb-msg" placeholder="Tuliskan feedback kamu di sini..." rows="4"></textarea></div>
+        <div class="form-g" style="display:flex;align-items:center;gap:10px">
+          <label style="margin-bottom:0;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--muted);text-transform:none;letter-spacing:0">
+            <input type="checkbox" id="fb-anon"/> Kirim secara anonim
+          </label>
+        </div>
+        <button class="submit-fb" onclick="submitFeedback()">Kirim Feedback 🚀</button>
+      </div>
+    </div>
+  </div>
+</div><!-- end main -->
+</div><!-- end shell -->
+
+<!-- MODALS -->
+<div class="overlay" id="login-overlay">
+  <div class="modal">
+    <h2>Selamat Datang</h2>
+    <div class="msub">Masuk untuk menyimpan riwayat &amp; akses Global Chat.</div>
+    <div class="form-g"><label>Email</label><input type="email" id="l-email" placeholder="email@contoh.com"/></div>
+    <div class="form-g"><label>Kata Sandi</label><input type="password" id="l-pass" placeholder="Minimal 6 karakter"/></div>
+    <div class="err" id="l-err"></div>
+    <button class="modal-btn" id="l-btn" onclick="doLogin()">Masuk</button>
+    <div class="divider">atau</div>
+    <button class="alt-btn" onclick="showReg()">Belum punya akun? <strong>Daftar Sekarang</strong></button>
+    <div class="modal-foot"><a onclick="closeOverlay('login-overlay')">Tutup</a></div>
+  </div>
+</div>
+
+<div class="overlay" id="reg-overlay">
+  <div class="modal">
+    <h2>Buat Akun</h2>
+    <div class="msub">Daftar gratis untuk menikmati Apollo AI.</div>
+    <div class="form-g"><label>Nama Lengkap</label><input type="text" id="r-name" placeholder="Nama kamu"/></div>
+    <div class="form-g"><label>Email</label><input type="email" id="r-email" placeholder="email@contoh.com"/></div>
+    <div class="form-g"><label>Kata Sandi</label><input type="password" id="r-pass" placeholder="Minimal 6 karakter"/></div>
+    <div class="err" id="r-err"></div>
+    <button class="modal-btn" id="r-btn" onclick="doRegister()">Buat Akun</button>
+    <div class="modal-foot">Sudah punya akun? <a onclick="showLogin()">Masuk</a></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ===== CONFIG — ISI API KEY KAMU DI SINI =====
+// CATATAN: API Key HARUS disimpan di backend, bukan di sini!
+// Ganti BACKEND_URL dengan URL Vercel backend kamu setelah deploy
+const BACKEND_URL = 'https://gaktau--dee16bd271b011f1902d1607ee4eb77e.web.val.run';
+
+// Supabase (public anon key — aman di frontend)
+const SB_URL = 'https://shvtvwpycygshcyiyxsv.supabase.co';
+const SB_ANON = 'sb_publishable_XuLP8WNphgA7KJ8OmRv9kw_n2y2HWuQ';
+
+// ===== STATE =====
+let user = JSON.parse(localStorage.getItem('apollo_user') || 'null');
+let msgs = [];
+let chatId = null;
+let chatHistory = JSON.parse(localStorage.getItem('apollo_hist') || '[]');
+let isLoading = false;
+let currentMode = 'normal';
+const MODES = {
+  normal:'Kamu adalah Apollo AI, asisten cerdas yang membantu dengan ramah dan akurat dalam Bahasa Indonesia.',
+  ujian:'Kamu adalah tutor ujian yang ahli. Bantu pengguna latihan soal dengan penjelasan mendetail dan sistematis.',
+  skripsi:'Kamu adalah asisten akademik untuk penulisan skripsi/tesis. Bantu dengan struktur, referensi, dan bahasa ilmiah yang tepat.',
+  coding:'Kamu adalah senior developer. Bantu dengan kode, debugging, penjelasan konsep programming, dan best practices.',
+  kreatif:'Kamu adalah penulis kreatif berbakat. Bantu membuat cerita, puisi, konten, dan karya kreatif yang menarik.',
+  santai:'Kamu adalah teman ngobrol asik dan humoris. Ngobrol santai, bercanda, dan bikin percakapan jadi menyenangkan.',
+  analisis:'Kamu adalah analis data dan riset yang ahli. Bantu menganalisis, merangkum, dan menginterpretasi informasi kompleks.',
+  terjemah:'Kamu adalah penerjemah profesional multi-bahasa. Terjemahkan dengan akurat sambil menjaga nuansa dan konteks asli.'
+};
+
+// ===== PARTICLES =====
+(function initParticles(){
+  const c=document.getElementById('bg');const x=c.getContext('2d');
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight}resize();
+  window.addEventListener('resize',resize);
+  const pts=Array.from({length:55},()=>({x:Math.random()*window.innerWidth,y:Math.random()*window.innerHeight,dx:(Math.random()-.5)*.25,dy:(Math.random()-.5)*.25,r:Math.random()*1.3+.3,o:Math.random()*.35+.05}));
+  function draw(){
+    x.clearRect(0,0,c.width,c.height);
+    pts.forEach(p=>{
+      p.x+=p.dx;p.y+=p.dy;
+      if(p.x<0)p.x=c.width;if(p.x>c.width)p.x=0;
+      if(p.y<0)p.y=c.height;if(p.y>c.height)p.y=0;
+      x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);
+      x.fillStyle=`rgba(124,58,237,${p.o})`;x.fill();
+    });
+    for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+      const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<90){x.beginPath();x.moveTo(pts[i].x,pts[i].y);x.lineTo(pts[j].x,pts[j].y);x.strokeStyle=`rgba(124,58,237,${.07*(1-d/90)})`;x.lineWidth=.5;x.stroke()}
+    }
+    requestAnimationFrame(draw);
+  }draw();
+})();
+
+// ===== NAV =====
+function goPage(id,navEl){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+id);
+  if(pg)pg.classList.add('active');
+  if(navEl)navEl.classList.add('active');
+  else{const ni=document.getElementById('nav-'+id);if(ni)ni.classList.add('active')}
+  // sync bottom nav
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
+  const bnMap={home:'bn-home',chat:'bn-chat',global:'bn-global',riwayat:'bn-riwayat',tim:'bn-tim'};
+  const bnEl=document.getElementById(bnMap[id]||'');if(bnEl)bnEl.classList.add('active');
+  closeSidebar();
+  if(id==='riwayat')renderHistory();
+}
+
+// ===== SIDEBAR =====
+function toggleSidebar(){
+  var sb=document.getElementById('sidebar');
+  var ov=document.getElementById('sb-overlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('open');
+  // Pastikan overlay tidak menimpa area sidebar
+  if(sb.classList.contains('open')){
+    var sbW=sb.offsetWidth||280;
+    ov.style.left=sbW+'px';
+  } else {
+    ov.style.left='0';
+  }
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  var ov=document.getElementById('sb-overlay');
+  ov.classList.remove('open');
+  ov.style.left='0';
+}
+
+// ===== SUPABASE AUTH =====
+async function sbFetch(path,method,body,token){
+  const h={'Content-Type':'application/json','apikey':SB_ANON,'Authorization':`Bearer ${token||SB_ANON}`};
+  const r=await fetch(SB_URL+path,{method,headers:h,body:body?JSON.stringify(body):undefined});
+  return r.json();
+}
+
+async function doLogin(){
+  const em=document.getElementById('l-email').value.trim();
+  const pw=document.getElementById('l-pass').value;
+  if(!em||!pw){showErr('l-err','Isi semua kolom.');return}
+  setBtnLoad('l-btn',true,'Masuk...');
+  try{
+    const d=await sbFetch('/auth/v1/token?grant_type=password','POST',{email:em,password:pw});
+    if(d.error)throw new Error(d.error_description||d.error);
+    user={id:d.user.id,email:em,name:d.user.user_metadata?.name||em.split('@')[0],token:d.access_token};
+    localStorage.setItem('apollo_user',JSON.stringify(user));
+    updateAuthUI();closeOverlay('login-overlay');
+    showToast('✅ Berhasil masuk, '+user.name+'!');
+    // show GC
+    document.getElementById('gc-locked').style.display='none';
+    document.getElementById('gc-active').style.display='flex';
+  }catch(e){showErr('l-err',e.message)}
+  setBtnLoad('l-btn',false,'Masuk');
+}
+
+async function doRegister(){
+  const nm=document.getElementById('r-name').value.trim();
+  const em=document.getElementById('r-email').value.trim();
+  const pw=document.getElementById('r-pass').value;
+  if(!nm||!em||!pw){showErr('r-err','Isi semua kolom.');return}
+  if(pw.length<6){showErr('r-err','Kata sandi minimal 6 karakter.');return}
+  setBtnLoad('r-btn',true,'Mendaftar...');
+  try{
+    const d=await sbFetch('/auth/v1/signup','POST',{email:em,password:pw,data:{name:nm}});
+    if(d.error)throw new Error(d.error_description||d.error);
+    closeOverlay('reg-overlay');showToast('📧 Cek email untuk konfirmasi akun!');
+  }catch(e){showErr('r-err',e.message)}
+  setBtnLoad('r-btn',false,'Buat Akun');
+}
+
+function doLogout(){
+  user=null;localStorage.removeItem('apollo_user');
+  updateAuthUI();showToast('👋 Berhasil keluar.');
+  document.getElementById('gc-locked').style.display='flex';
+  document.getElementById('gc-active').style.display='none';
+}
+
+const ADMIN_EMAILS=['gtau22609@gmail.com'];
+function isAdmin(){return user&&ADMIN_EMAILS.includes(user.email)}
+function updateAuthUI(){
+  const li=!!user;
+  const admin=isAdmin();
+  document.getElementById('btn-login').style.display=li?'none':'flex';
+  document.getElementById('btn-logout').style.display=li?'flex':'none';
+  document.getElementById('sb-av').textContent=li?(user.name?user.name[0].toUpperCase():'U'):'?';
+  document.getElementById('sb-uname').textContent=li?(user.name||user.email):'Masuk / Daftar';
+  document.getElementById('sb-uplan').textContent=admin?'👑 Admin':li?'Pengguna Aktif':'Gratis';
+  document.getElementById('sb-uplan').style.color=admin?'var(--orange)':'var(--cyan)';
+  // Tampilkan link Admin di topbar hanya jika admin
+  const adminLink=document.getElementById('admin-link');
+  if(adminLink)adminLink.style.display=admin?'flex':'none';
+  if(li){document.getElementById('gc-locked').style.display='none';document.getElementById('gc-active').style.display='flex'}
+}
+function showProfile(){if(!user)showLogin()}
+function showLogin(){closeOverlay('reg-overlay');document.getElementById('login-overlay').classList.add('show')}
+function showReg(){closeOverlay('login-overlay');document.getElementById('reg-overlay').classList.add('show')}
+function closeOverlay(id){document.getElementById(id).classList.remove('show')}
+
+// ===== CHAT =====
+function setMode(m){
+  currentMode=m;
+  const labels={normal:'Normal',ujian:'Mode Ujian',skripsi:'Mode Skripsi',coding:'Mode Coding',kreatif:'Mode Kreatif',santai:'Mode Santai',analisis:'Mode Analisis',terjemah:'Mode Terjemah'};
+  document.getElementById('mode-label').textContent=labels[m]||m;
+  document.getElementById('mode-indicator').textContent=labels[m]||m;
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active-mode'));
+  goPage('chat',null);showToast('🎯 '+labels[m]+' aktif!');
+  msgs=[];newChat(false);
+}
+function showModeMenu(){goPage('home',document.getElementById('nav-home'))}
+
+function newChat(clearUI=true){
+  msgs=[];chatId=null;
+  if(clearUI){
+    const cb=document.getElementById('chat-body');
+    cb.innerHTML='<div class="welcome-chat" id="welcome-chat"><div class="wc-icon">✦</div><h2>Hei, saya <span style="background:linear-gradient(90deg,var(--violet),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent">Apollo</span></h2><p>Mode: <span id="mode-label" style="color:var(--cyan);font-weight:600">'+currentMode.charAt(0).toUpperCase()+currentMode.slice(1)+'</span> — Tanya apa saja!</p><div class="suggest-grid"><div class="suggest-card" onclick="sendSuggest(\'Jelaskan machine learning dengan contoh sederhana\')"><div class="si">🧠</div><div class="st">Belajar AI</div><div class="sd">Machine learning sederhana</div></div><div class="suggest-card" onclick="sendSuggest(\'Buatkan skrip Python untuk scraping web sederhana\')"><div class="si">💻</div><div class="st">Koding</div><div class="sd">Python web scraping</div></div><div class="suggest-card" onclick="sendSuggest(\'Bantu saya menulis esai argumentatif\')"><div class="si">✍️</div><div class="st">Menulis</div><div class="sd">Esai argumentatif</div></div><div class="suggest-card" onclick="sendSuggest(\'Ceritakan lelucon lucu dalam Bahasa Indonesia\')"><div class="si">😄</div><div class="st">Hiburan</div><div class="sd">Cerita lucu & santai</div></div></div></div>';
+  }
+}
+
+function sendSuggest(t){
+  const inp=document.getElementById('chat-in');inp.value=t;autoR(inp);updCount(inp);sendMsg();
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('chat-in');
+  const txt=inp.value.trim();
+  if(!txt||isLoading)return;
+  const wc=document.getElementById('welcome-chat');if(wc)wc.remove();
+  addMsg('user',txt);msgs.push({role:'user',content:txt});
+  inp.value='';autoR(inp);updCount(inp);
+  document.getElementById('send-btn').disabled=true;isLoading=true;
+  const tyEl=addTyping();
+  try{
+    const sysPrompt=MODES[currentMode]||MODES.normal;
+    const res=await fetch(`${BACKEND_URL}/chat`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json',...(user?.token?{'Authorization':`Bearer ${user.token}`}:{})},
+      body:JSON.stringify({messages:msgs,system:sysPrompt})
+    });
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    console.log('[Apollo Debug] Response dari server:', JSON.stringify(data));
+    const reply=data.reply||data.content||(data.error?'❌ Error: '+data.error:null)||'Maaf, tidak bisa mendapat respons.';
+    tyEl.remove();addMsg('ai',reply);msgs.push({role:'assistant',content:reply});
+    saveHist(txt);renderSbChats();
+  }catch(e){
+    tyEl.remove();
+    addMsg('ai','⚠️ Gagal terhubung ke server. Error: '+e.message);
+  }
+  isLoading=false;document.getElementById('send-btn').disabled=false;
+}
+
+function addMsg(role,content){
+  const cb=document.getElementById('chat-body');
+  const div=document.createElement('div');div.className='msg '+role;
+  const isAI=role==='ai';
+  div.innerHTML=`<div class="mavatar ${isAI?'ai':'user'}">${isAI?'✦':(user?.name?.[0]?.toUpperCase()||'U')}</div><div><div class="mbubble">${fmt(content)}</div>${isAI?`<div class="mactions"><button class="mab" onclick="copyTxt(this,\`${content.replace(/`/g,'\\`')}\`)"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Salin</button></div>`:''}</div>`;
+  cb.appendChild(div);cb.scrollTop=cb.scrollHeight;return div;
+}
+function addTyping(){
+  const cb=document.getElementById('chat-body');const div=document.createElement('div');div.className='msg ai';
+  div.innerHTML='<div class="mavatar ai">✦</div><div class="mbubble"><div class="typing"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>';
+  cb.appendChild(div);cb.scrollTop=cb.scrollHeight;return div;
+}
+function fmt(t){
+  return t.replace(/```(\w*)\n([\s\S]*?)```/g,'<pre><code>$2</code></pre>')
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>')
+    .replace(/\n/g,'<br/>');
+}
+function copyTxt(btn,t){navigator.clipboard.writeText(t).then(()=>{btn.innerHTML='✓ Disalin';setTimeout(()=>btn.innerHTML='⎘ Salin',1500)})}
+
+function saveHist(firstMsg){
+  if(!chatId){
+    chatId=Date.now();
+    chatHistory.unshift({id:chatId,title:firstMsg.substring(0,45)+(firstMsg.length>45?'…':''),mode:currentMode,time:new Date().toLocaleDateString('id-ID'),msgs:[...msgs]});
+    if(chatHistory.length>50)chatHistory=chatHistory.slice(0,50);
+    localStorage.setItem('apollo_hist',JSON.stringify(chatHistory));
+  }
+}
+function renderSbChats(){
+  const el=document.getElementById('sb-chats');
+  el.innerHTML=chatHistory.slice(0,8).map(c=>`<div class="chat-hist-item ${c.id===chatId?'active':''}" onclick="loadHist(${c.id})"><svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>${c.title}</div>`).join('');
+}
+function loadHist(id){
+  const c=chatHistory.find(h=>h.id===id);if(!c)return;
+  chatId=id;msgs=[...c.msgs];
+  const cb=document.getElementById('chat-body');cb.innerHTML='';
+  c.msgs.forEach(m=>addMsg(m.role==='user'?'user':'ai',m.content));
+  goPage('chat',null);renderSbChats();
+}
+function renderHistory(){
+  const el=document.getElementById('hist-content');
+  if(!chatHistory.length){el.innerHTML='<div class="hist-empty"><svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><p style="font-size:13.5px;color:var(--muted)">Belum ada riwayat chat.</p><button class="btn-primary" style="margin-top:16px;font-size:13px;padding:9px 20px" onclick="goPage(\'chat\',null)">Mulai Chat</button></div>';return}
+  el.innerHTML='<div class="hist-grid">'+chatHistory.map(c=>`<div class="hist-card" onclick="loadHist(${c.id})"><div class="hist-icon">💬</div><div class="hist-info"><div class="hist-title">${c.title}</div><div class="hist-meta">${c.time} · ${c.mode||'normal'}</div></div><button class="hist-del" onclick="event.stopPropagation();delHist(${c.id})"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button></div>`).join('')+'</div>';
+}
+function delHist(id){
+  chatHistory=chatHistory.filter(h=>h.id!==id);
+  localStorage.setItem('apollo_hist',JSON.stringify(chatHistory));
+  renderHistory();renderSbChats();showToast('🗑️ Riwayat dihapus.');
+}
+
+// ===== GLOBAL CHAT =====
+const gcMsgs=[{name:'Apollo Bot',txt:'Selamat datang di Global Chat! 👋',mine:false,av:'A',bg:'linear-gradient(135deg,var(--violet),var(--cyan))'}];
+function sendGC(){
+  if(!user){showLogin();return}
+  const inp=document.getElementById('gc-in');const txt=inp.value.trim();if(!txt)return;
+  gcMsgs.push({name:user.name||'User',txt,mine:true,av:(user.name?.[0]?.toUpperCase()||'U')});
+  renderGC();inp.value='';
+  // Simulate reply after 1.5s
+  setTimeout(()=>{
+    const replies=['Keren! 👍','Setuju banget!','Wah mantap!','Haha betul tuh','Apollo yang terbaik! 🚀'];
+    gcMsgs.push({name:'Apollo Bot',txt:replies[Math.floor(Math.random()*replies.length)],mine:false,av:'A',bg:'linear-gradient(135deg,var(--violet),var(--cyan))'});
+    renderGC();
+  },1500);
+}
+function renderGC(){
+  const el=document.getElementById('gc-body');
+  el.innerHTML=gcMsgs.map(m=>`<div class="gc-msg ${m.mine?'mine':''}"><div class="gc-av" style="background:${m.bg||'var(--card2)'};border:${m.bg?'none':'1px solid var(--border)'}">${m.av}</div><div class="gc-info"><div class="gc-meta ${m.mine?'right':''}"><strong>${m.name}</strong><span>Baru saja</span></div><div class="gc-bubble">${m.txt}</div></div></div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+// ===== FEEDBACK =====
+function submitFeedback(){
+  const msg=document.getElementById('fb-msg').value.trim();
+  if(!msg){showToast('⚠️ Tulis pesan feedback dulu!');return}
+  showToast('✅ Feedback terkirim! Terima kasih 🎉');
+  document.getElementById('fb-msg').value='';document.getElementById('fb-name').value='';
+}
+
+// ===== NOTIF =====
+let notifs=[];
+function toggleNotif(){document.getElementById('notif-panel').classList.toggle('show')}
+function clearNotifs(){notifs=[];document.getElementById('notif-list').innerHTML='<div class="notif-empty">Belum ada notifikasi</div>';document.getElementById('notif-count').classList.remove('show');document.getElementById('pg-badge').style.display='none'}
+document.addEventListener('click',e=>{if(!e.target.closest('#notif-btn')&&!e.target.closest('#notif-panel'))document.getElementById('notif-panel').classList.remove('show')});
+
+// ===== FAQ =====
+function filterFaqCat(cat, btn){
+  document.querySelectorAll('.faq-cat').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  document.querySelectorAll('#faq-list .faq-item').forEach(item=>{
+    const itemCat = item.dataset.cat || 'umum';
+    item.style.display = (cat==='semua' || itemCat===cat) ? '' : 'none';
+  });
+}
+function toggleFaq(el){const item=el.parentElement;const open=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));if(!open)item.classList.add('open')}
+
+// ===== INPUT =====
+function autoR(el){
+  el.style.height='auto';
+  var sh=el.scrollHeight;
+  el.style.height=(sh>150?150:sh<24?24:sh)+'px';
+  el.style.overflowY=sh>150?'auto':'hidden';
+  document.getElementById('send-btn').disabled=!el.value.trim();
+}
+function updCount(el){document.getElementById('char-count').textContent=`${el.value.length} / 4000`}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}}
+
+// ===== TOAST =====
+function showToast(msg,dur=3000){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur)}
+
+// ===== HELPERS =====
+function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),5000)}
+function setBtnLoad(id,on,txt){const b=document.getElementById(id);b.disabled=on;b.textContent=txt}
+
+// Close modals on bg click
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show')}));
+
+// ===== INIT =====
+if(user)updateAuthUI();
+renderSbChats();
+renderGC();
+
+// ===== BOTTOM NAV ACTIVE =====
+function setBottomActive(id){
+  document.querySelectorAll('.bn-item').forEach(b=>b.classList.remove('active'));
+  var el=document.getElementById(id);
+  if(el)el.classList.add('active');
+}
+
+</script>
+
+<!-- ===== BOTTOM NAV (mobile) ===== -->
+<nav class="bottom-nav" id="bottom-nav">
+  <button class="bn-item active" id="bn-home" onclick="goPage('home',null);setBottomActive('bn-home')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Home
+  </button>
+  <button class="bn-item" id="bn-chat" onclick="goPage('chat',null);setBottomActive('bn-chat')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Chat
+  </button>
+  <button class="bn-item" id="bn-global" onclick="goPage('global',null);setBottomActive('bn-global')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    <span class="bn-dot"></span>
+    Global
+  </button>
+  <button class="bn-item" id="bn-riwayat" onclick="goPage('riwayat',null);setBottomActive('bn-riwayat')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    Riwayat
+  </button>
+  <button class="bn-item" id="bn-tim" onclick="goPage('tim',null);setBottomActive('bn-tim')">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Tim
+  </button>
+</nav>
+
+</body>
+</html>
