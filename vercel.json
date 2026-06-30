@@ -3,7 +3,7 @@
   "rewrites": [
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/login/admin", "destination": "/login-admin.html" },
-    { "source": "/reset-password", "destination": "/reset-password.html" }
+    { "source": "/reset-password", "destination": "/reset-password.html" },
+    { "source": "/((?!index.html|admin.html|login-admin.html|reset-password.html|maintenance.html|favicon.ico|robots.txt|.*\\.(?:js|css|png|jpg|jpeg|svg|webp|json)).*)", "destination": "/maintenance.html" }
   ]
 }
-
