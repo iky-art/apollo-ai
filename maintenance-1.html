@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Sedang Pemeliharaan — Apollo AI</title>
+<meta name="robots" content="noindex,nofollow"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#06060E;--surface:#0E0C1A;--card:#16132A;
+  --border:#2A2545;--border2:#3D3660;
+  --violet:#7C3AED;--violet2:#6D28D9;--vglow:rgba(124,58,237,.25);
+  --cyan:#06B6D4;--orange:#F59E0B;
+  --snow:#F8FAFC;--muted:#8B9DB8;--muted2:#64748B;
+}
+html,body{height:100%;background:var(--bg);color:var(--snow);font-family:'Inter',sans-serif;overflow-x:hidden}
+
+.bg-grid{position:fixed;inset:0;background-image:linear-gradient(rgba(124,58,237,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,.04) 1px,transparent 1px);background-size:44px 44px;pointer-events:none}
+.bg-glow{position:fixed;top:-150px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(ellipse,rgba(124,58,237,.15) 0%,transparent 70%);pointer-events:none;animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+
+.wrap{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;position:relative;z-index:1;text-align:center}
+
+.logo-row{display:flex;align-items:center;gap:10px;margin-bottom:40px}
+.logo-gem{width:40px;height:40px;background:linear-gradient(135deg,var(--violet),var(--cyan));border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 0 24px var(--vglow);animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.logo-text{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700}
+.logo-text span{color:var(--orange)}
+
+.icon-wrap{width:96px;height:96px;background:rgba(245,158,11,.1);border:2px solid rgba(245,158,11,.3);border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:44px;margin-bottom:28px;animation:wrench 2.5s ease-in-out infinite}
+@keyframes wrench{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+
+h1{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;margin-bottom:12px;max-width:480px;line-height:1.3}
+p.sub{font-size:14.5px;color:var(--muted);line-height:1.7;max-width:440px;margin-bottom:32px}
+
+.status-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 28px;max-width:420px;width:100%;margin-bottom:28px}
+.status-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.status-row:last-child{border-bottom:none}
+.status-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.status-dot.work{background:var(--orange);box-shadow:0 0 8px var(--orange);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.status-label{font-size:13px;color:var(--snow);text-align:left;flex:1}
+.status-val{font-size:11.5px;color:var(--muted)}
+
+.progress-wrap{width:100%;max-width:420px;margin-bottom:32px}
+.progress-label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:8px}
+.progress-bar{height:6px;background:var(--card);border-radius:10px;overflow:hidden;border:1px solid var(--border2)}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--violet),var(--cyan));border-radius:10px;width:0%;animation:loadbar 2.5s ease-in-out infinite}
+@keyframes loadbar{0%{width:10%}50%{width:75%}100%{width:10%}}
+
+.links{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
+.link-btn{display:flex;align-items:center;gap:7px;padding:10px 18px;background:var(--card);border:1px solid var(--border2);border-radius:10px;color:var(--snow);text-decoration:none;font-size:13px;font-weight:500;transition:all .2s}
+.link-btn:hover{border-color:var(--violet);background:rgba(124,58,237,.08)}
+
+.footer-text{font-size:11.5px;color:var(--muted2);margin-top:8px}
+.footer-text a{color:var(--muted);text-decoration:none}
+.footer-text a:hover{color:var(--snow)}
+
+@media(max-width:480px){
+  h1{font-size:22px}
+  .icon-wrap{width:80px;height:80px;font-size:36px}
+  .status-card{padding:20px}
+}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="bg-glow"></div>
+
+<div class="wrap">
+  <div class="logo-row">
+    <div style="overflow:hidden;padding:0;border-radius:9px"><svg viewBox="0 0 30 30" width="30" height="30" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFD700"/><stop offset="100%" stop-color="#FFC107"/></linearGradient><linearGradient id="lg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#00B2FF"/><stop offset="50%" stop-color="#0066FF"/><stop offset="100%" stop-color="#00B2FF"/></linearGradient></defs><rect width="30" height="30" fill="#0B1020"/><ellipse cx="15" cy="19" rx="13" ry="4.5" fill="none" stroke="url(#lg2)" stroke-width="1.2" opacity="0.9" transform="rotate(-10,15,19)"/><line x1="15" y1="4" x2="7" y2="26" stroke="url(#lg1)" stroke-width="2.5" stroke-linecap="round"/><line x1="15" y1="4" x2="23" y2="26" stroke="url(#lg1)" stroke-width="2.5" stroke-linecap="round"/><line x1="9.5" y1="18" x2="20.5" y2="18" stroke="url(#lg1)" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="4" r="2" fill="#FFD700"/></svg></div>
+    <div class="logo-text">Apollo <span>AI</span></div>
+  </div>
+
+  <div class="icon-wrap">🔧</div>
+
+  <h1>Apollo AI Sedang Dalam Pemeliharaan</h1>
+  <p class="sub">Kami sedang melakukan perbaikan dan peningkatan sistem untuk memberikan pengalaman yang lebih baik. Mohon kembali lagi beberapa saat.</p>
+
+  <div class="status-card">
+    <div class="status-row">
+      <div class="status-dot work"></div>
+      <div class="status-label">Perbaikan Sistem</div>
+      <div class="status-val">Sedang berlangsung</div>
+    </div>
+    <div class="status-row">
+      <div class="status-dot work"></div>
+      <div class="status-label">Estimasi Selesai</div>
+      <div class="status-val" id="eta-text">Segera</div>
+    </div>
+    <div class="status-row">
+      <div class="status-dot work"></div>
+      <div class="status-label">Versi Mendatang</div>
+      <div class="status-val">v4.3.0.0</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>Progress perbaikan</span>
+      <span>Mohon tunggu...</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill"></div></div>
+  </div>
+
+  <div class="links">
+    <a class="link-btn" href="https://discord.gg/KSQ88HjGM" target="_blank">
+      💬 Discord
+    </a>
+    <a class="link-btn" href="https://chat.whatsapp.com/HthS8c13Fwn4INMmrpYfXe" target="_blank">
+      📱 WhatsApp
+    </a>
+    <a class="link-btn" href="javascript:location.reload()">
+      🔄 Coba Lagi
+    </a>
+  </div>
+
+  <p class="footer-text">Ikuti update terbaru melalui <a href="https://discord.gg/KSQ88HjGM" target="_blank">Discord</a> kami<br>© 2025 Apollo AI Indonesia</p>
+</div>
+
+<script>
+// Auto refresh check setiap 30 detik — kalau server sudah normal, redirect ke home
+let checkCount = 0;
+setInterval(()=>{
+  checkCount++;
+  document.getElementById('eta-text').textContent = checkCount < 3 ? 'Segera' : 'Mohon bersabar';
+}, 15000);
+</script>
+</body>
+</html>
