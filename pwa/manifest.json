@@ -1,0 +1,49 @@
+{
+  "id": "/",
+  "name": "Apollo AI",
+  "short_name": "Apollo AI",
+  "description": "Apollo AI adalah platform kecerdasan buatan modern yang menghadirkan berbagai model AI, PDF Analyzer, dan fitur produktivitas dalam satu tempat.",
+
+  "lang": "id-ID",
+  "dir": "ltr",
+
+  "start_url": "/",
+  "scope": "/",
+
+  "display": "standalone",
+  "orientation": "portrait",
+
+  "background_color": "#0B1220",
+  "theme_color": "#0B1220",
+
+  "categories": [
+    "productivity",
+    "utilities",
+    "education",
+    "developer"
+  ],
+
+  "prefer_related_applications": false,
+
+  "icons": [
+    {
+      "src": "/pwa/logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+
+  "shortcuts": [
+    {
+      "name": "Apollo AI",
+      "short_name": "Chat",
+      "url": "/"
+    },
+    {
+      "name": "PDF Analyzer",
+      "short_name": "PDF",
+      "url": "/pdf-mode.html"
+    }
+  ]
+}
