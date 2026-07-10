@@ -1,0 +1,27 @@
+# ============================================================
+# Apollo AI - Robots.txt
+# https://apollo-ai-nine.vercel.app
+# ============================================================
+
+User-agent: *
+
+# Izinkan semua halaman publik
+Allow: /
+
+# Jangan indeks halaman internal
+Disallow: /admin.html
+Disallow: /login-admin.html
+Disallow: /maintenance.html
+
+# Izinkan aset PWA
+Allow: /pwa/
+
+# Sitemap
+Sitemap: https://apollo-ai-nine.vercel.app/sitemap.xml
+
+# Host utama
+Host: https://apollo-ai-nine.vercel.app
+
+# ============================================================
+# End of robots.txt
+# ============================================================
